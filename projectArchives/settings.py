@@ -16,7 +16,7 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATABASES_URL = 'PGPASSWORD=lTim7TkFJR4ZCWqsxvdt psql -h containers-us-west-204.railway.app -U postgres -p 7948 -d railway'
+DATABASES_URL = 'postgresql://postgres:lTim7TkFJR4ZCWqsxvdt@containers-us-west-204.railway.app:7948/railway'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -25,7 +25,7 @@ DATABASES_URL = 'PGPASSWORD=lTim7TkFJR4ZCWqsxvdt psql -h containers-us-west-204.
 SECRET_KEY = "django-insecure-pa=aq6!i*u#!___e03p%vu%+fzi*k9$)p@jr8w0kg&rwndm$0x"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -105,7 +105,7 @@ WSGI_APPLICATION = "projectArchives.wsgi.application"
 ########### RENDER ##################
 import dj_database_url
 DATABASES = {
-     'default': dj_database_url.config(default=DATABASES_URL,conn_max_age=1800)
+     'default': dj_database_url.parse(DATABASES_URL)
          }
 
 # Password validation
