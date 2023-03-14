@@ -2,9 +2,8 @@ from . import views
 from django.urls import path
 
 urlpatterns = [
-    path('upload', views.upload, name='upload'),
+    path('upload/', views.upload, name='upload'),
     path('', views.dashboard, name='home'),
-    
     path('student',views.student,name='student'),
     path('student_od',views.student_od,name='student_od'),
     path('staff',views.staff,name='staff'),
