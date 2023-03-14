@@ -25,9 +25,9 @@ DATABASES_URL = 'postgresql://postgres:lTim7TkFJR4ZCWqsxvdt@containers-us-west-2
 SECRET_KEY = "django-insecure-pa=aq6!i*u#!___e03p%vu%+fzi*k9$)p@jr8w0kg&rwndm$0x"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*','pams-production.up.railway.app']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -139,6 +139,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 STATIC_DIRS = [
     os.path.join(BASE_DIR,'static')
 ]
