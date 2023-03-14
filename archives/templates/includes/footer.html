@@ -32,7 +32,7 @@
     <script src="{% static 'assets/vendors/DataTables/datatables.min.js' %}" type="text/javascript"></script>
 
     
-      <script>
+      {% comment %} <script>
         const disabledKeys = ["c", "C", "x", "J", "u", "I"]; // keys that will be disabled
       
         const showAlert = e => {
@@ -50,7 +50,7 @@
             showAlert(e);
           }
         });
-      </script>
+      </script> {% endcomment %}
         <script>
             function AddTableARIA() {
                 try {
