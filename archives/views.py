@@ -210,7 +210,7 @@ def login(request):
 
 
 
-# @login_required(login_url='login/')
+@login_required(login_url='/login')
 def dashboard(request):
    
    s = Student.objects.all().count()
