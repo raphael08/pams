@@ -210,7 +210,7 @@ def login(request):
 
 
 
-@login_required(login_url='/login')
+# @login_required(login_url='login/')
 def dashboard(request):
    
    s = Student.objects.all().count()
@@ -547,7 +547,7 @@ def update_level(request,pk):
        messages.error(request,'something went wrong')
  
  
-@login_required(login_url='/login')
+@login_required(login_url='login/')
 def manageroles(request):
        
       g = Group.objects.all().order_by('id')
@@ -556,7 +556,7 @@ def manageroles(request):
       
       return render(request,'html/dist/manageroles.html',{'side':'role','p':p,'g':g})
 
-@login_required(login_url='/login')
+@login_required(login_url='login/')
 def addroles(request):
   try:
    p = Group()
