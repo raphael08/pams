@@ -35,7 +35,7 @@
                       
                       {% if perms.archives.edit_project_type and perms.archives.delete_project_type%}
                       <td>
-                        
+                        {% if perms.archives.edit_project_type %}
                         <button class="btn btn-default" data-toggle="modal"
                         data-target="#modal-lg16{{t.id}}"><i class="fa fa-pencil font-14"></i></button>
                         {% endif %}
