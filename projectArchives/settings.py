@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths inside the project like this: BASE_DIR / 'subdir'.python
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATABASES_URL = 'postgresql://postgres:lTim7TkFJR4ZCWqsxvdt@containers-us-west-204.railway.app:7948/railway'

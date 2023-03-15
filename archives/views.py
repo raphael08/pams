@@ -26,7 +26,7 @@ from pdf2image import convert_from_path
 import csv
 from fuzzywuzzy import fuzz
 import requests
-
+# from .soma import rex
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 poppler_path = os.path.join(PROJECT_DIR, '..', 'poppler-23.01.0', 'Library', 'bin')
@@ -46,7 +46,7 @@ def check_connection():
            
 
 def login(request):
- try:
+#  try:
    user = User()
    students = Student()
    staffs = Staff()
@@ -117,10 +117,10 @@ def login(request):
       else:
          
          rex.studentInfo(email=request.POST.get("username"), password=request.POST.get("password"))
-         if rex.error == "no internet connection":
-               messages.error(request,rex.error)
-               return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-         elif rex.error == "Login Failed: invalid credentials":
+         # if rex.error == "no internet connection":
+         #       messages.error(request,rex.error)
+         #       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+         if rex.error == "Login Failed: invalid credentials":
                messages.error(request,rex.error)
                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
          elif rex.error == 'invalid status code':
@@ -133,6 +133,8 @@ def login(request):
             user.email = rex.email
             user.password = make_password(request.POST.get("password"))
             user.save()
+            print(f'{rex.NTA_level},{rex.regno}')
+            
             # if rex.NTA_level == '8' or (rex.NTA_level=='6' and 'diploma' in (rex.level).lower()):
             #        user.groups.add(role8)
             # else:
@@ -143,6 +145,7 @@ def login(request):
             students.user = user
             students.regNo = rex.regno
             students.NTA_Level = rex.NTA_level
+            
             students.academic_year = rex.academic_year
             students.mobile = rex.mobile
             students.gender = rex.gender
@@ -204,9 +207,9 @@ def login(request):
    else:
       messages.error(request,'No internet Connection')
       return render(request,'html/dist/login.html')    
- except:
-    messages.error(request,'Something went wrong')
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+#  except:
+#     messages.error(request,'Something went wrong')
+#     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 
@@ -215,11 +218,11 @@ def dashboard(request):
    
    s = Student.objects.all().count()
    d = Department.objects.all().count()
-   if request.user.is_superuser:
+   # if request.user.is_superuser:
           
-    p = Project.objects.all().count()
-   else:
-      p = Project.objects.filter(department_id=request.user.student.department.id).count() or Project.objects.filter(department_id=request.user.staff.department.id).count()    
+   p = Project.objects.all().count()
+   # else:
+   #    p = Project.objects.filter(department_id=request.user.student.department.id).count() or Project.objects.filter(department_id=request.user.staff.department.id).count()    
    f  = Staff.objects.all().count()
    finalB =  Progress.objects.all()
    finalD =  Student.objects.filter(NTA_Level=6)
