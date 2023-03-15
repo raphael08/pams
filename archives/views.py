@@ -46,7 +46,7 @@ def check_connection():
            
 
 def login(request):
-#  try:
+ try:
    user = User()
    students = Student()
    staffs = Staff()
@@ -207,9 +207,9 @@ def login(request):
    else:
       messages.error(request,'No internet Connection')
       return render(request,'html/dist/login.html')    
-#  except:
-#     messages.error(request,'Something went wrong')
-#     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 
