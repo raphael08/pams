@@ -20,8 +20,9 @@
                     <tr>
                       <th>Department</th>
                       <th>Name</th>
+                      {% if perms.archives.edit_project_type and perms.archives.delete_project_type%}
                       <th>Action</th>
-                      
+                      {% endif %}
                     </tr>
                   </thead>
                   <tbody>
@@ -31,8 +32,10 @@
                       <td>
                         {{t.department__name}}</td>
                       <td>{{t.name}}</td>
+                      
+                      {% if perms.archives.edit_project_type and perms.archives.delete_project_type%}
                       <td>
-                        {% if perms.archives.edit_project_type%}
+                        
                         <button class="btn btn-default" data-toggle="modal"
                         data-target="#modal-lg16{{t.id}}"><i class="fa fa-pencil font-14"></i></button>
                         {% endif %}
@@ -40,6 +43,7 @@
                         <button class="btn btn-default"data-toggle="modal" data-target="#modal-dangerv{{t.id}}"><i class="fa fa-trash font-14"></i></button>
                         {% endif %}
                                     </td>
+                                    {% endif %}
                     </tr>
                     {% endfor %}
                    
