@@ -300,6 +300,5 @@ class raphael:
             self.error = 'no internet connection'
                 
 rex=raphael()
-rex.studentInfo('rsiphael@gmail.com','#Raphael1996')
-print(rex.NTA_level)
+
 
