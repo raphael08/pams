@@ -32,9 +32,13 @@
                         {{t.department__name}}</td>
                       <td>{{t.name}}</td>
                       <td>
+                        {% if perms.archives.edit_project_type%}
                         <button class="btn btn-default" data-toggle="modal"
                         data-target="#modal-lg16{{t.id}}"><i class="fa fa-pencil font-14"></i></button>
+                        {% endif %}
+                        {% if perms.archives.delete_project_type%}
                         <button class="btn btn-default"data-toggle="modal" data-target="#modal-dangerv{{t.id}}"><i class="fa fa-trash font-14"></i></button>
+                        {% endif %}
                                     </td>
                     </tr>
                     {% endfor %}
