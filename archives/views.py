@@ -1016,7 +1016,8 @@ def pdf_upload(request):
                profile = os.path.join(parent_dir,'media','projects')
                
                # os.remove(f'{profile}\\{str(pdf)}') 
-               project.save()       
+               project.save()      
+               print(project.id) 
                pdf_file = Document(cover=images[0]['output_jpgfiles'][0],file=pdf,project_id = project.id )
                pdf_file.save()
                messages.success(request, 'Your PDF was uploaded successfully!')
