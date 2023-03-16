@@ -30,10 +30,10 @@ import requests
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(PROJECT_DIR)
 print(parent_dir)
-poppler_path = os.path.join(parent_dir,'poppler-23.01.0', 'Library', 'bin')
+poppler_path = os.path.join(parent_dir,'poppler-23.01.0', 'Library', 'bin','pdfinfo.exe')
 print(poppler_path)
-cover = os.path.join(PROJECT_DIR, '..', 'media','coverpage')
-profile = os.path.join(PROJECT_DIR, '..', 'media','profile_pic')
+cover = os.path.join(parent_dir,'media','coverpage')
+profile = os.path.join(parent_dir,'media','profile_pic')
 
 
 def check_connection():
@@ -972,9 +972,10 @@ def check_file_similarity(file_path):
    
 @login_required(login_url='/login')   
 def pdf_upload(request):
-    p  = Project_type.objects.filter(department_id=request.user.student.department.id)
-    role = Group.objects.get(name='Student') 
+    k  = Project_type.objects.filter(department_id=request.user.student.department.id) 
     if request.method == 'POST' and request.FILES['pdf']:
+        
+        role = Group.objects.get(name='Student')
         title = request.POST.get('title')
         type = request.POST.get('type')
         file = request.FILES.get('pdf').read()
@@ -1004,10 +1005,10 @@ def pdf_upload(request):
                project.save()         
                p =User.objects.get(id=request.user.id)
                for i in Group.objects.all():
-                 p.user.groups.remove(i.id)
-               p.user.groups.add(role)
+                 p.groups.remove(i.id)
+               p.groups.add(role)
                images[0].save(paths) 
-               profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
+               profile = os.path.join(parent_dir,'media','projects')
                os.remove(f'{profile}\\{str(pdf)}')        
                pdf_file = Document(cover=names,file=pdf,project_id = project.id )
                pdf_file.save()
@@ -1059,7 +1060,7 @@ def pdf_upload(request):
             messages.error(request, 'only Pdf file required') 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
     j = Document.objects.filter(project__student_id=request.user.student.id).exists()     
-    return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':p,'j':j})
+    return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':k,'j':j})
  
 @login_required(login_url='/login')
 def preview_pdf(request,pk):
