@@ -1015,7 +1015,7 @@ def pdf_upload(request):
                # names = images[0]['output_jpgfiles'][0] 
                profile = os.path.join(parent_dir,'media','projects')
                
-               os.remove(f'{profile}\\{str(pdf)}') 
+               # os.remove(f'{profile}\\{str(pdf)}') 
                project.save()       
                pdf_file = Document(cover=images[0]['output_jpgfiles'][0],file=pdf,project_id = project.id )
                pdf_file.save()
