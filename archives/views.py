@@ -28,7 +28,7 @@ from fuzzywuzzy import fuzz
 import requests
 # from .soma import rex
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-
+print(PROJECT_DIR)
 poppler_path = os.path.join('pams','poppler-23.01.0', 'Library', 'bin')
 print(poppler_path)
 cover = os.path.join(PROJECT_DIR, '..', 'media','coverpage')
