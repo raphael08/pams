@@ -975,15 +975,15 @@ def check_file_similarity(file_path):
 @login_required(login_url='/login')   
 def pdf_upload(request):
     k  = Project_type.objects.filter(department_id=request.user.student.department.id) 
-    role = Group.objects.get(name='Student')
     if request.method == 'POST' and request.FILES['pdf']:
         
-        
+        role = Group.objects.get(name='Student')
         title = request.POST.get('title')
         type = request.POST.get('type')
         file = request.FILES.get('pdf').read()
         pdf = request.FILES['pdf']
         path = 'media/projects/' + str(pdf)
+        pathz = 'media/poppler-23.01.0/Libary/bin/'
         if path.endswith('.pdf'):
          with open(path, 'wb+') as destination: 
                      destination.write(file)
@@ -997,28 +997,23 @@ def pdf_upload(request):
             project = Project()
             similarity_scores = check_file_similarity(path)         
             if len(similarity_scores)==0:
-               
-               # name = str(pdf)[-6:-4]
-               # names = images[0]['output_jpgfiles'][0]
-               paths = f'{cover}\\' 
+               images = convert_from_path(path,poppler_path=pathz)
+               name = str(pdf)[-6:-4]
+               names = f'{name}'+'.jpg'
+               paths = f'{cover}\\{names}' 
                project.title = title.title()
                project.student_id = request.user.student.id
                project.department_id = request.user.student.department.id
                project.project_type_id = type
-                       
+               project.save()         
                p =User.objects.get(id=request.user.id)
                for i in Group.objects.all():
                  p.groups.remove(i.id)
                p.groups.add(role)
-               images = pdf2jpg.convert_pdf2jpg(path,paths, dpi=300,pages="0")
-               print(images)
-               # names = images[0]['output_jpgfiles'][0] 
+               images[0].save(paths) 
                profile = os.path.join(parent_dir,'media','projects')
-               
-               # os.remove(f'{profile}\\{str(pdf)}') 
-               project.save()      
-               print(project.id) 
-               pdf_file = Document(cover=images[0]['output_jpgfiles'][0],file=pdf,project_id = project.id )
+               os.remove(f'{profile}\\{str(pdf)}')        
+               pdf_file = Document(cover=names,file=pdf,project_id = project.id )
                pdf_file.save()
                messages.success(request, 'Your PDF was uploaded successfully!')
                #os.remove(path)
