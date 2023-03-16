@@ -975,9 +975,10 @@ def check_file_similarity(file_path):
 @login_required(login_url='/login')   
 def pdf_upload(request):
     k  = Project_type.objects.filter(department_id=request.user.student.department.id) 
+    role = Group.objects.get(name='Student')
     if request.method == 'POST' and request.FILES['pdf']:
         
-        role = Group.objects.get(name='Student')
+        
         title = request.POST.get('title')
         type = request.POST.get('type')
         file = request.FILES.get('pdf').read()
@@ -1004,7 +1005,7 @@ def pdf_upload(request):
                project.student_id = request.user.student.id
                project.department_id = request.user.student.department.id
                project.project_type_id = type
-               project.save()         
+                       
                p =User.objects.get(id=request.user.id)
                for i in Group.objects.all():
                  p.groups.remove(i.id)
@@ -1013,7 +1014,8 @@ def pdf_upload(request):
                names = images[0]['output_jpgfiles'][0] 
                profile = os.path.join(parent_dir,'media','projects')
                
-               os.remove(f'{profile}\\{str(pdf)}')        
+               os.remove(f'{profile}\\{str(pdf)}') 
+               project.save()       
                pdf_file = Document(cover=names,file=pdf,project_id = project.id )
                pdf_file.save()
                messages.success(request, 'Your PDF was uploaded successfully!')
