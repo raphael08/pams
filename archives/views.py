@@ -46,7 +46,7 @@ def check_connection():
            
 
 def login(request):
- try:
+#  try:
    user = User()
    students = Student()
    staffs = Staff()
@@ -117,10 +117,10 @@ def login(request):
       else:
          
          rex.studentInfo(email=request.POST.get("username"), password=request.POST.get("password"))
-         # if rex.error == "no internet connection":
-         #       messages.error(request,rex.error)
-         #       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-         if rex.error == "Login Failed: invalid credentials":
+         if rex.error == "no internet connection":
+               messages.error(request,rex.error)
+               return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+         elif rex.error == "Login Failed: invalid credentials":
                messages.error(request,rex.error)
                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
          elif rex.error == 'invalid status code':
@@ -207,9 +207,9 @@ def login(request):
    else:
       messages.error(request,'No internet Connection')
       return render(request,'html/dist/login.html')    
- except:
-    messages.error(request,'Something went wrong')
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+#  except:
+#     messages.error(request,'Something went wrong')
+#     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 
@@ -550,7 +550,7 @@ def update_level(request,pk):
        messages.error(request,'something went wrong')
  
  
-@login_required(login_url='login/')
+@login_required(login_url='/login')
 def manageroles(request):
        
       g = Group.objects.all().order_by('id')
@@ -559,7 +559,7 @@ def manageroles(request):
       
       return render(request,'html/dist/manageroles.html',{'side':'role','p':p,'g':g})
 
-@login_required(login_url='login/')
+@login_required(login_url='/login')
 def addroles(request):
   try:
    p = Group()
@@ -646,7 +646,7 @@ def reset_password(request,pk):
    messages.success(request,'Password reseted successful')
    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-@login_required(login_url='/login')
+
 @login_required(login_url='/login')
 def logout(request):
     auth.logout(request)
@@ -798,7 +798,7 @@ def changepassword(request):
       else:
          messages.error(request,'Check Your Old Password')
          return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-      
+@login_required(login_url='/login')    
 def upload(request):
    if request.method == 'POST':
       
@@ -968,7 +968,7 @@ def check_file_similarity(file_path):
 #                     return res
 #     return render(request, 'html/dist/upload.html')
    
-   
+@login_required(login_url='/login')   
 def pdf_upload(request):
     p  = Project_type.objects.filter(department_id=request.user.student.department.id)
     role = Group.objects.get(name='Student') 
@@ -1059,7 +1059,7 @@ def pdf_upload(request):
     j = Document.objects.filter(project__student_id=request.user.student.id).exists()     
     return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':p,'j':j})
  
- 
+@login_required(login_url='/login')
 def preview_pdf(request,pk):
     
    d = Document.objects.filter(id=pk)

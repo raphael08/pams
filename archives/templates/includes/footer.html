@@ -265,6 +265,31 @@
         
         }); 
   </script>
+
+  <script>
+    $(document).ready(function() {
+        var table = $('#myTablek').DataTable({
+            "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+          "columnDefs": [{
+            "searchable": false,
+            "orderable": false,
+            "targets": [2]
+          }],
+          "order": [
+            [4, 'desc']
+          ],
+          
+          
+        });
+      
+        $('#myTablek thead tr:eq(1) th').each(function() {
+          var title = $(this).text();
+          $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+        });
+      
+      
+      }); 
+</script>
 <div>
 
 

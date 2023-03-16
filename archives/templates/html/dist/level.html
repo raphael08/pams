@@ -25,29 +25,39 @@
             <div class="table-wrapper" role="group" aria-labelledby="caption">
                 
                     
-                <table id="myTable" class="table table-striped table-bordered" style="width:100%">
-                  <thead>
-                    <tr>
-                        {% comment %} <th>DeptCode</th> {% endcomment %}
-                      <th>Name</th>
-                      <th>Action</th>
+              <table id="myTablek" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                  <tr>
+                    
+                    <th>Name</th>
+                    {% if perms.archives.edit_project_type and perms.archives.delete_project_type%}
+                    <th>Action</th>
+                    {% endif %}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
                       
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for d in level %}
-                    <tr>
-                      {% comment %} <td>{{forloop.counter}}</td> {% endcomment %}
-                      <td>{{d.name}}</td>
-                      <td>
-                        <button class="btn btn-default" data-toggle="modal"
-                        data-target="#modal-lg2{{d.id}}"><i class="fa fa-pencil font-14"></i></button>
-                        <button class="btn btn-default"data-toggle="modal" data-target="#modal-dangerx{{d.id}}"><i class="fa fa-trash font-14"></i></button>
-                                    </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+                  {% for t in level %}
+                    
+                    <td>{{t.name}}</td>
+                    
+                    {% if perms.archives.edit_project_type and perms.archives.delete_project_type%}
+                    <td>
+                      {% if perms.archives.edit_project_type %}
+                      <button class="btn btn-default" data-toggle="modal"
+                      data-target="#modal-lg16{{t.id}}"><i class="fa fa-pencil font-14"></i></button>
+                      {% endif %}
+                      {% if perms.archives.delete_project_type%}
+                      <button class="btn btn-default"data-toggle="modal" data-target="#modal-dangerv{{t.id}}"><i class="fa fa-trash font-14"></i></button>
+                      {% endif %}
+                                  </td>
+                                  {% endif %}
+                  </tr>
+                  {% endfor %}
+                 
+                </tbody>
+              </table>
               </div>
               
         </div>
@@ -166,51 +176,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.0/moment.min.js'></script>
-<script>
-$(document).ready(function() {
-   $("#sort").DataTable({
-    pageLength: 1,
-      columnDefs : [
-    { type : 'date', targets : [2] }
-],  
-   });
-});
-</script>
 
-<script>
 
-    $(document).ready(function() {
-        var table = $('#myTable').DataTable({
-            "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
-          "columnDefs": [{
-            "searchable": false,
-            "orderable": false,
-            "targets": [2]
-          }],
-          "order": [
-            [1, 'asc']
-          ]
-        });
-      
-        $('#myTable thead tr:eq(1) th').each(function() {
-          var title = $(this).text();
-          $(this).html('<input type="text" placeholder="Search ' + title + '" />');
-        });
-      
-        table.columns().every(function() {
-          var that = this;
-      
-          $('input', this.header()).on('keyup change clear', function() {
-            if (that.search() !== this.value) {
-              that
-                .search(this.value)
-                .draw();
-            }
-          });
-        });
-      });
-      
-</script>
+
+
 {% include "includes/footer.html"%}
 
             {% comment %} {% include "includes/js.html "%}  {% endcomment %}
