@@ -999,7 +999,7 @@ def pdf_upload(request):
                
                # name = str(pdf)[-6:-4]
                # names = images[0]['output_jpgfiles'][0]
-               paths = f'{cover}\\{names}' 
+               paths = f'{cover}\\' 
                project.title = title.title()
                project.student_id = request.user.student.id
                project.department_id = request.user.student.department.id
@@ -1012,6 +1012,7 @@ def pdf_upload(request):
                images = pdf2jpg.convert_pdf2jpg(path,paths, dpi=300,pages="0")
                names = images[0]['output_jpgfiles'][0] 
                profile = os.path.join(parent_dir,'media','projects')
+               
                os.remove(f'{profile}\\{str(pdf)}')        
                pdf_file = Document(cover=names,file=pdf,project_id = project.id )
                pdf_file.save()
