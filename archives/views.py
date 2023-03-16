@@ -1011,12 +1011,13 @@ def pdf_upload(request):
                  p.groups.remove(i.id)
                p.groups.add(role)
                images = pdf2jpg.convert_pdf2jpg(path,paths, dpi=300,pages="0")
-               names = images[0]['output_jpgfiles'][0] 
+               print(images)
+               # names = images[0]['output_jpgfiles'][0] 
                profile = os.path.join(parent_dir,'media','projects')
                
                os.remove(f'{profile}\\{str(pdf)}') 
                project.save()       
-               pdf_file = Document(cover=names,file=pdf,project_id = project.id )
+               pdf_file = Document(cover=images[0]['output_jpgfiles'][0],file=pdf,project_id = project.id )
                pdf_file.save()
                messages.success(request, 'Your PDF was uploaded successfully!')
                #os.remove(path)
