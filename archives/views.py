@@ -29,8 +29,8 @@ import requests
 # from .soma import rex
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-poppler_path = os.path.join('poppler-23.01.0', 'Library', 'bin')
-
+poppler_path = os.path.join('pams','poppler-23.01.0', 'Library', 'bin')
+print(poppler_path)
 cover = os.path.join(PROJECT_DIR, '..', 'media','coverpage')
 profile = os.path.join(PROJECT_DIR, '..', 'media','profile_pic')
 
