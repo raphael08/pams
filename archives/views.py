@@ -996,7 +996,7 @@ def pdf_upload(request):
             project = Project()
             similarity_scores = check_file_similarity(path)         
             if len(similarity_scores)==0:
-               images = convert_from_path(path,poppler_path='poppler-23.01.0\Library\bin')
+               images = convert_from_path(path,poppler_path='poppler-23.01.0\\Library\\bin\\')
                name = str(pdf)[-6:-4]
                names = f'{name}'+'.jpg'
                paths = f'{cover}\\{names}' 
