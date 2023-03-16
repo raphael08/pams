@@ -24,12 +24,14 @@ from .models import *
 from django.http import JsonResponse
 from pdf2image import convert_from_path
 import csv
+from pdf2jpg import pdf2jpg
 from fuzzywuzzy import fuzz
 import requests
 # from .soma import rex
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(PROJECT_DIR)
-print(parent_dir)
+directories = os.listdir(parent_dir)
+print(directories)
 poppler_path = os.path.join(parent_dir,'poppler-23.01.0', 'Library', 'bin','pdfinfo.exe')
 print(poppler_path)
 cover = os.path.join(parent_dir,'media','coverpage')
