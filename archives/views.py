@@ -996,9 +996,9 @@ def pdf_upload(request):
             project = Project()
             similarity_scores = check_file_similarity(path)         
             if len(similarity_scores)==0:
-               images = convert_from_path(path,poppler_path='https://github.com/raphael08/pams/tree/main/poppler-23.01.0/Library/bin/')
-               name = str(pdf)[-6:-4]
-               names = f'{name}'+'.jpg'
+               
+               # name = str(pdf)[-6:-4]
+               # names = images[0]['output_jpgfiles'][0]
                paths = f'{cover}\\{names}' 
                project.title = title.title()
                project.student_id = request.user.student.id
@@ -1009,7 +1009,8 @@ def pdf_upload(request):
                for i in Group.objects.all():
                  p.groups.remove(i.id)
                p.groups.add(role)
-               images[0].save(paths) 
+               images = pdf2jpg.convert_pdf2jpg(path,paths, dpi=300,pages="0")
+               names = images[0]['output_jpgfiles'][0] 
                profile = os.path.join(parent_dir,'media','projects')
                os.remove(f'{profile}\\{str(pdf)}')        
                pdf_file = Document(cover=names,file=pdf,project_id = project.id )
