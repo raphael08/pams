@@ -222,9 +222,10 @@ class raphael:
 
                 module = session.get(module).text
                 soup = bs(module,'html.parser')
-                soup = soup.find('table').find_all('td')[1].text
-                
-                modules = soup[-4]
+                # soup = soup.find('table').find_all('td')
+                soup2= pd.read_html(module)
+               
+                modules = soup2[0]['Code'][0][-4]
                 
                 # modules = pd.DataFrame(modules)
                 self.NTA_level = modules
@@ -300,5 +301,6 @@ class raphael:
             self.error = 'no internet connection'
                 
 rex=raphael()
+
 
 
