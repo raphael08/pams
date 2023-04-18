@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-pa=aq6!i*u#!___e03p%vu%+fzi*k9$)p@jr8w0kg&rwndm$0x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -89,17 +89,17 @@ WSGI_APPLICATION = "projectArchives.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 
-################LOCAL #####################
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'archives',
-#         'USER': 'postgres',
-#         'PASSWORD': 'raphael',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
+###############LOCAL #####################
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'archives',
+        'USER': 'postgres',
+        'PASSWORD': 'raphael',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
 
 ##################RAILWAY#########################
 # DATABASES = {
@@ -113,11 +113,11 @@ WSGI_APPLICATION = "projectArchives.wsgi.application"
 #     }
 # }
 
-########### RENDER ##################
-import dj_database_url
-DATABASES = {
-     'default': dj_database_url.parse(DATABASES_URL)
-         }
+########### RAILWAY ##################
+# import dj_database_url
+# DATABASES = {
+#      'default': dj_database_url.parse(DATABASES_URL)
+#          }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

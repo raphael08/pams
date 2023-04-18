@@ -118,11 +118,9 @@ class Progress(models.Model):
         db_table = "progress"  
         
 class Submission(models.Model):
-    STATUS = (('Reached','Reached'),('Not Reached','Not Reached'))
-    date = models.DateField(auto_now=False,auto_now_add=False  )
-    time = models.TimeField(auto_now=False,auto_now_add=False)
+    when = models.DateTimeField(auto_now=False,auto_now_add=False)
     level = models.OneToOneField(Level,on_delete=models.CASCADE, null=True,blank=True)
-    status = models.CharField(choices=STATUS, max_length=50, default='Not Reached', null=True,blank=True)
+   
     class Meta:
         db_table = "submission"
 

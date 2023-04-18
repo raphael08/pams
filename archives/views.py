@@ -7,6 +7,8 @@ from django.db.models import Q
 from .models import *
 from django.contrib.auth.hashers import make_password
 import random 
+import pandas as pd
+from urllib.parse import urlparse
 import os
 import datetime
 from django.shortcuts import HttpResponseRedirect
@@ -24,18 +26,15 @@ from .models import *
 from django.http import JsonResponse
 from pdf2image import convert_from_path
 import csv
-from pdf2jpg import pdf2jpg
 from fuzzywuzzy import fuzz
 import requests
+# from projectArchives.settings import *
 # from .soma import rex
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(PROJECT_DIR)
-directories = os.listdir(parent_dir)
-print(directories)
-poppler_path = os.path.join(parent_dir,directories[5], 'Library', 'bin','pdfinfo.exe')
-print(poppler_path)
-cover = os.path.join(parent_dir,'media','coverpage')
-profile = os.path.join(parent_dir,'media','profile_pic')
+
+poppler_path = os.path.join(PROJECT_DIR, '..', 'poppler-23.01.0', 'Library', 'bin')
+cover = os.path.join(PROJECT_DIR, '..', 'media','coverpage')
+profile = os.path.join(PROJECT_DIR, '..', 'media','profile_pic')
 
 
 def check_connection():
@@ -50,7 +49,7 @@ def check_connection():
            
 
 def login(request):
-#  try:
+ try:
    user = User()
    students = Student()
    staffs = Staff()
@@ -81,17 +80,17 @@ def login(request):
          if us.is_staff==False:
             if current_date >=october:
                rex.studentInfo(email=request.POST.get("username"), password=request.POST.get("password"))
-               if rex.error == "no internet connection":
-                  messages.error(request,rex.error)
-                  return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-               elif rex.error == "Login Failed: invalid credentials":
+               # if rex.error == "no internet connection":
+               #    messages.error(request,rex.error)
+               #    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+               if rex.error == "Login Failed: invalid credentials":
                   messages.error(request,rex.error)
                   return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
                elif rex.error == 'invalid status code':
                   messages.error(request,rex.error)
                   return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
                else:
-                  Student.objects.filter(user__email=request.POST.get("username")).update(NTA_Level = rex.NTA_level,academic_year = rex.academic_year)
+                  Student.objects.filter(user__email=request.POST.get("username")).update(NTA_Level = rex,academic_year = rex.academic_year)
                   user = auth.authenticate(username=email,password=password)
                   if user is not None:
                      auth.login(request,user)
@@ -121,10 +120,10 @@ def login(request):
       else:
          
          rex.studentInfo(email=request.POST.get("username"), password=request.POST.get("password"))
-         if rex.error == "no internet connection":
-               messages.error(request,rex.error)
-               return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-         elif rex.error == "Login Failed: invalid credentials":
+         # if rex.error == "no internet connection":
+         #       messages.error(request,rex.error)
+         #       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+         if rex.error == "Login Failed: invalid credentials":
                messages.error(request,rex.error)
                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
          elif rex.error == 'invalid status code':
@@ -137,7 +136,7 @@ def login(request):
             user.email = rex.email
             user.password = make_password(request.POST.get("password"))
             user.save()
-            print(f'{rex.NTA_level},{rex.regno}')
+            # print(f'{rex.NTA_level},{rex.regno}')
             
             # if rex.NTA_level == '8' or (rex.NTA_level=='6' and 'diploma' in (rex.level).lower()):
             #        user.groups.add(role8)
@@ -211,9 +210,9 @@ def login(request):
    else:
       messages.error(request,'No internet Connection')
       return render(request,'html/dist/login.html')    
-#  except:
-#     messages.error(request,'Something went wrong')
-#     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 
@@ -231,7 +230,7 @@ def dashboard(request):
    finalB =  Progress.objects.all()
    finalD =  Student.objects.filter(NTA_Level=6)
    k = request.POST.dict()
-   print(k)
+  
    return render(request,'html/dist/index.html',{'side':'dashboard','s':s,'d':d,'f':f,'p':p,'b':finalB,'o':finalD})
 
 @login_required(login_url='/login')
@@ -328,7 +327,7 @@ def addstaff(request):
 
       # # Save pages as images in the pdf
       # images[0].save(f'{cover}\\page' +'.jpg', 'JPEG') 
-      u = User.objects.create(username=email,email=email,password=password,first_name=name)
+      u = User.objects.create(username=email,email=email,password=password,first_name=name,is_staff=True)
       Staff.objects.create(user=u,staff_id=staff_id,mobile=mobile,department_id=departments,gender=gender,level=level)
       u.groups.add(group)
    
@@ -554,7 +553,7 @@ def update_level(request,pk):
        messages.error(request,'something went wrong')
  
  
-@login_required(login_url='/login')
+@login_required(login_url='login/')
 def manageroles(request):
        
       g = Group.objects.all().order_by('id')
@@ -563,7 +562,7 @@ def manageroles(request):
       
       return render(request,'html/dist/manageroles.html',{'side':'role','p':p,'g':g})
 
-@login_required(login_url='/login')
+@login_required(login_url='login/')
 def addroles(request):
   try:
    p = Group()
@@ -655,7 +654,8 @@ def reset_password(request,pk):
 def logout(request):
     auth.logout(request)
     messages.success(request,'logout successful')
-    return redirect('/login')
+    
+    return redirect('login')
  
 @login_required(login_url='/login')
 def editstaff(request,pk):
@@ -697,34 +697,48 @@ def editstaff(request,pk):
 
 @login_required(login_url='/login')
 def upload_addstaff(request):
+      try:
         if request.method == 'POST':
          file_data = request.FILES['file']
-         decoded_file = file_data.read().decode('utf-8').splitlines()
-         reader = csv.DictReader(decoded_file)
-         for row in reader:
+         path = str(file_data)
+         if path.endswith('.xlsx'):
+            df = pd.read_excel(file_data)
+            
+            # decoded_file = file_data.read().decode('utf-8').splitlines()
+            # reader = csv.DictReader(decoded_file)
+            for index, row in df.iterrows():
                 dept_id = Department.objects.get(name=row['department'])
                 role_id = Group.objects.get(name=row['role'])
-                user = User.objects.create(
+                if User.objects.filter(email=row['email']).exists():
+                       continue
+                else:
+                  user = User.objects.create(
                     first_name=row['name'],
                     email=row['email'],
                     username=row['email'],
                     is_staff = True  ,
                     password = make_password('@DIT123'),
                     
-                )
+                  )
                 
-                u = User.objects.get(username=row['email'])
-                u.groups.add(role_id,)
-                Staffs = Staff.objects.create(
-                    user = user,
-                    gender=row['gender'],
-                    staff_id=row['staff_id'],
-                    mobile = row['mobile'],
-                    department = dept_id ,
-                     
-                )
+                  u = User.objects.get(username=row['email'])
+                  u.groups.add(role_id,)
+                  Staffs = Staff.objects.create(
+                     user = user,
+                     gender=row['gender'],
+                     staff_id=row['staff_id'],
+                     mobile = row['mobile'],
+                     department = dept_id ,
+                        
+                  )
                 
-        messages.success(request,'Staff created successful')
+            messages.success(request,'Staff created successful')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+         else:
+            messages.error(request,'Upload excel file only')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))     
+      except:
+        messages.error(request,'something went wrong')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @login_required(login_url='/login')
@@ -732,14 +746,18 @@ def upload_student(request):
       try:
         if request.method == 'POST':
          file_data = request.FILES['file']
-         decoded_file = file_data.read().decode('utf-8').splitlines()
-         reader = csv.DictReader(decoded_file)
-         for row in reader:
+         # decoded_file = file_data.read().decode('utf-8').splitlines()
+         # reader = csv.DictReader(decoded_file)
+         path = str(file_data)
+         if path.endswith('.xlsx'):
+            df = pd.read_excel(file_data)
+            for index, row in df.iterrows():
+         
                 dept_id = Department.objects.get(name=row['Department'])
                 role_id = Group.objects.get(name="Student")
                 users = User.objects.filter(username=row['Email']).exists()
                 user = Student.objects.filter(regNo=row['Registration Number']).exists()
-                if user and users:
+                if user or users or (user and users):
                        continue
                 else:
                 
@@ -747,25 +765,29 @@ def upload_student(request):
                     first_name=row['Name'],
                     email=row['Email'],
                     username=row['Email'],
-                    password = make_password('@DIT123'),
-                    
-                )
-                
-                u = User.objects.get(username=row['email'])
-                u.groups.add(role_id,)
-                Student.objects.create(
-                    user = user,
-                    gender=row['Gender'],
-                    regNo=row['Registration Number'],
-                    course = row['Course'],
-                    mobile = row['Mobile'],
-                    department = dept_id , 
-                    academic_year = row['Academic Year'],
-                    NTA_Level = int(row['NTA_Level'])    
-                )
-                
-        messages.success(request,'Student created successful')
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                    password = make_password('@DIT123'))
+               
+                 u = User.objects.get(username=row['email'])
+                 u.groups.add(role_id,)
+                 Student.objects.create(
+                     user = user,
+                     gender=row['Gender'],
+                     regNo=row['Registration Number'],
+                     course = row['Course'],
+                     mobile = row['Mobile'],
+                     department = dept_id , 
+                     academic_year = row['Academic Year'],
+                     NTA_Level = int(row['NTA_Level']))
+         
+                  
+                 messages.success(request,'Student created successful')
+            
+                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+            
+         else: 
+                 messages.error(request,'Exel file only required')
+            
+                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
       except:
          messages.success(request,'The csv should contain Department,Registration Number, Name, Course, Academic Year,Gender,Mobile,NTA_Level,Email')
          return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -775,14 +797,15 @@ def upload_student(request):
 def projects(request):
    
    d = Document.objects.all()
+   l = Document.objects.all().count()
    f = Department.objects.all()
    s = Student.objects.values_list('academic_year',flat=True).distinct()
    s = list(s)
-   g = Project_type.objects.filter(department_id = request.user.student.department.id)
+   g = Project_type.objects.all()
    
    name = request.POST.get('department')
    g = Project_type.objects.filter(department__name = name)
-   return render(request,'html/dist/projects.html',{'side':'projects','d':d,'f':f,'s':s,'g':g})
+   return render(request,'html/dist/projects.html',{'side':'projects','d':d,'f':f,'s':s,'g':g,'l':l})
 
 @login_required(login_url='/login')
 def changepassword(request):
@@ -802,7 +825,7 @@ def changepassword(request):
       else:
          messages.error(request,'Check Your Old Password')
          return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-@login_required(login_url='/login')    
+      
 def upload(request):
    if request.method == 'POST':
       
@@ -972,18 +995,17 @@ def check_file_similarity(file_path):
 #                     return res
 #     return render(request, 'html/dist/upload.html')
    
-@login_required(login_url='/login')   
+   
 def pdf_upload(request):
-    k  = Project_type.objects.filter(department_id=request.user.student.department.id) 
+    
+    
+    
     if request.method == 'POST' and request.FILES['pdf']:
-        
-        role = Group.objects.get(name='Student')
         title = request.POST.get('title')
         type = request.POST.get('type')
         file = request.FILES.get('pdf').read()
         pdf = request.FILES['pdf']
         path = 'media/projects/' + str(pdf)
-        pathz = 'media/poppler-23.01.0/Libary/bin/'
         if path.endswith('.pdf'):
          with open(path, 'wb+') as destination: 
                      destination.write(file)
@@ -992,91 +1014,109 @@ def pdf_upload(request):
          # for page in range(number_of_pages):
          text2 += pdf2.pages[0].extract_text()
          # print(text2.strip())
-         if 'DAR ES SALAAM INSTITUTE OF TECHNOLOGY' in text2:
+         # if 'DAR ES SALAAM INSTITUTE OF TECHNOLOGY' in text2:
+         
             
-            project = Project()
-            similarity_scores = check_file_similarity(path)         
-            if len(similarity_scores)==0:
-               images = convert_from_path(path,poppler_path=pathz)
-               name = str(pdf)[-6:-4]
-               names = f'{name}'+'.jpg'
-               paths = f'{cover}\\{names}' 
-               project.title = title.title()
-               project.student_id = request.user.student.id
-               project.department_id = request.user.student.department.id
-               project.project_type_id = type
-               project.save()         
-               p =User.objects.get(id=request.user.id)
-               for i in Group.objects.all():
-                 p.groups.remove(i.id)
-               p.groups.add(role)
-               images[0].save(paths) 
-               profile = os.path.join(parent_dir,'media','projects')
-               os.remove(f'{profile}\\{str(pdf)}')        
-               pdf_file = Document(cover=names,file=pdf,project_id = project.id )
-               pdf_file.save()
-               messages.success(request, 'Your PDF was uploaded successfully!')
-               #os.remove(path)
-               return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file})
-            else:
-                        # if max(similarity_scores,key=lambda x:x[1])[1] == 100:
-                        #       messages.error(request, 'File Exists')
-                        #       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-                        
-                        if max(similarity_scores,key=lambda x:x[1])[1] > 80:
-                           print(f'projects/{max(similarity_scores,key=lambda x:x[1])[0]}')
-                           d = Document.objects.get(file=f'projects/{max(similarity_scores,key=lambda x:x[1])[0]}')
-                           print(d)
-                           messages.error(request, f'Your file is {max(similarity_scores,key=lambda x:x[1])[1]} %  resemble with project with title {d.project.title.title()} of year {d.project.student.academic_year} {d.project.student.level.name.title()} from {d.project.student.department.name.title()} Department')
-                           # profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
-                           # os.remove(f'{profile}\\{str(pdf)}') 
-                           # res = JsonResponse({'data':max(similarity_scores,key=lambda x:x[1]),'existingPath': fileName})
-                           return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-                           
-                        else:
-                           images = convert_from_path(path,poppler_path=poppler_path)
-                           name = str(pdf)[-6:-4]
-                           name = f'{name}'+'.jpg'
-                           paths = f'{cover}\\{name}' 
-                           project.title = title.title()
-                           project.student_id = request.user.student.id
-                           project.department_id = request.user.student.department.id
-                           project.project_type_id = type
-                           project.save()  
-                           p =User.objects.get(id=request.user.id)
-                           for i in Group.objects.all():
-                            p.groups.remove(i.id)
-                           p.groups.add(role)  
-                           # Save pages as images in the pdf
-                           images[0].save(paths) 
-                           profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
-                           os.remove(f'{profile}\\{str(pdf)}')           
-                           pdf_file = Document(cover=name,file=pdf,project_id = project.id )
-                           pdf_file.save()
-                           messages.success(request, 'Your PDF was uploaded successfully!')
-                           
-                           return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file})
+         project = Project()
+         similarity_scores = check_file_similarity(path)         
+         if len(similarity_scores)==0:
+            images = convert_from_path(path,poppler_path=poppler_path)
+            name = str(pdf)[-6:-4]
+            pdf =  str(pdf)[:-4]
+            
+            names = f'{name}'+'.jpg'
+            paths = f'{cover}\\{names}' 
+            project.title = title.title()
+            project.student_id = request.user.student.id
+            project.department_id = request.user.student.department.id
+            project.project_type_id = type
+            project.save()         
+            p =User.objects.get(id=request.user.id)
+            for i in Group.objects.all():
+               p.groups.remove(i.id)
+            p.groups.add(role)
+            images[0].save(paths) 
+            profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
+            os.remove(f'{profile}\\{str(pdf)}')      
+            pdf_file = Document(cover=names,file=pdf,project_id = project.id )
+            pdf_file.save()
+             
+            messages.success(request, 'Your PDF was uploaded successfully!')
+            #os.remove(path)
+            return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file,'j':j})
          else:
-            messages.error(request, 'Upload your document with cover page') 
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
+                     # if max(similarity_scores,key=lambda x:x[1])[1] == 100:
+                     #       messages.error(request, 'File Exists')
+                     #       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                     
+                     if max(similarity_scores,key=lambda x:x[1])[1] > 80:
+                        print(f'projects/{max(similarity_scores,key=lambda x:x[1])[0]}')
+                        d = Document.objects.get(file=f'projects/{max(similarity_scores,key=lambda x:x[1])[0]}')
+                        print(d)
+                        messages.error(request, f'Your file is {max(similarity_scores,key=lambda x:x[1])[1]} %  resemble with project with title {d.project.title.title()} of year {d.project.student.academic_year} {d.project.student.level.name.title()} from {d.project.student.department.name.title()} Department')
+                        # profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
+                        # os.remove(f'{profile}\\{str(pdf)}') 
+                        # res = JsonResponse({'data':max(similarity_scores,key=lambda x:x[1]),'existingPath': fileName})
+                        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                        
+                     else:
+                        images = convert_from_path(path,poppler_path=poppler_path)
+                        name = str(pdf)[-6:-4]
+                        name = f'{name}'+'.jpg'
+                      
+                        print(pdf)
+                        paths = f'{cover}\\{name}' 
+                        project.title = title.title()
+                        project.student_id = request.user.student.id
+                        project.department_id = request.user.student.department.id
+                        project.project_type_id = type
+                        project.save()  
+                        p =User.objects.get(id=request.user.id)
+                        for i in Group.objects.all():
+                           p.groups.remove(i.id)
+                        p.groups.add(role)  
+                        # Save pages as images in the pdf
+                        images[0].save(paths) 
+                        profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
+                        os.remove(f'{profile}\\{str(pdf)}')           
+                        pdf_file = Document(cover=name,file=pdf,project_id = project.id )
+                        pdf_file.save()
+                        messages.success(request, 'Your PDF was uploaded successfully!')
+                        
+                        return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file,'j':j})
+         # else:
+         #    messages.error(request, 'Upload your document with cover page') 
+         #    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
         else:
             messages.error(request, 'only Pdf file required') 
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
-    j = Document.objects.filter(project__student_id=request.user.student.id).exists()     
-    return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':k,'j':j})
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+          
+    if request.user.is_superuser:
+           
+     p  = Project_type.objects.all()
+     sub = Submission.objects.all()
+   #   s = Student.objects.filter(NTA_Level = 8)
+    elif request.user.is_staff:
+            
+            p  = Project_type.objects.filter(department_id=request.user.staff.department.id)
+            sub = Submission.objects.get(level=request.user.staff.level.id) 
+    else:
+       sub = Submission.objects.get(level=request.user.student.level.id)
+       
+       p  = Project_type.objects.filter(department_id=request.user.student.department.id)
+       j = Document.objects.filter(project__student_id=request.user.student.id).exists()    
+    role = Group.objects.get(name='Student')    
+    return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':p,'sub':sub})
  
-@login_required(login_url='/login')
+ 
 def preview_pdf(request,pk):
     
-   d = Document.objects.filter(id=pk)
-    
-   
-        
+   d = Document.objects.filter(id=pk)     
    return render(request, 'html/dist/previewed.html',{'side':'a','d':d})
 
 def submissionTime(request):
-   # try:
-    ids = []
+   try:
+    
     role8 = Group.objects.get(name='Final_Year')
     role = Group.objects.get(name='Student') 
     if request.method == 'POST':
@@ -1088,10 +1128,10 @@ def submissionTime(request):
           if request.user.staff.level.id == '':
             messages.error(request, 'Data') 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    
-          t = Submission.objects.create(date=date,time=time,level_id=request.user.staff.level.id)
+          t = Submission.objects.create(when=date,level_id=request.user.staff.level.id)
           if t:
             for s in (Student.objects.filter(level_id =request.user.staff.level.id) and Student.objects.filter(department_id =request.user.staff.department.id)):
-               print(s.id)
+               
                if s.NTA_Level == 8:
                      for i in Group.objects.all():
                                  s.user.groups.remove(i.id)   
@@ -1103,11 +1143,35 @@ def submissionTime(request):
                
             messages.success(request, 'data saved successful') 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
-   # except:
-   #          messages.error(request, 'data saved successful') 
-   #          return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+   except:
+            messages.error(request, 'something went wrong') 
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
 
-
+def deadline(request):
+ try:
+  
+  role = Group.objects.get(name='Student') 
+  sb = Submission.objects.get(level_id=request.user.student.level.id)
+  #print(sb.level_id)
+  for s in (Student.objects.all()):
+       
+      if s.NTA_Level == 8 and s.level.id==sb.level_id:
+            for i in Group.objects.all():
+                        #print(i.id)
+                        s.user.groups.remove(i.id)   
+            s.user.groups.add(role) 
+      elif s.NTA_Level == 6 and s.level.id==sb.level_id:
+               for i in Group.objects.all():
+                        s.user.groups.remove(i.id)
+               s.user.groups.add(role)  
+      
+      messages.error(request, 'TIMEOUT') 
+      #return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+      return redirect('/deadlines') 
+ except:
+   messages.error(request, 'something went wrong') 
+   return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+ 
 def my_view(request):
     # Retrieve a Time model instance (assuming it exists)
    time_instance = Submission.objects.filter(level_id=request.user.staff.level.id).first()
@@ -1128,3 +1192,37 @@ def get_project_types(request, department):
     project_types = Project_type.objects.filter(department__name=department)
     data = [{'id': p.id, 'name': p.name} for p in project_types]
     return JsonResponse({'project_types': data})
+ 
+ 
+def manage_project(request):
+  
+   f = Department.objects.all()
+   s = Student.objects.values_list('academic_year',flat=True).distinct()
+  
+   s = list(s)
+   if request.user.is_superuser:
+    g = Project_type.objects.all()
+   
+    d = Document.objects.all()
+   else:
+          g = Project_type.objects.filter(department_id = request.user.student.department.id)
+          
+          d = Document.objects.filter(project__department_id = request.user.student.department.id)
+   name = request.POST.get('department')
+   g = Project_type.objects.filter(department__name = name)
+   return render(request,'html/dist/manage_project.html',{'side':'manage_project','d':d,'f':f,'s':s,'g':g})
+
+def deletepdf(request,pk):
+ try:
+   Project.objects.get(id=pk).delete()
+   messages.success(request, 'data deleted successful') 
+   return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+ except:
+   messages.error(request, 'something went wrong') 
+   return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def deadlines(request):
+   
+   
+   return render(request,'html/dist/deadline.html')

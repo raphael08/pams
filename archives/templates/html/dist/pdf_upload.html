@@ -21,9 +21,9 @@
           <h4>Project Upload</h4>
         </div>
         <div class="card-body">
-          {% if j %}
+         
+          {% if pdf_file or j %}
             <p>Your PDF was uploaded successfully!</p>
-            
             <a href="{{ pdf_file.pdf_file.url }}">{{ pdf_file.pdf_file.url }}</a>
           {% else %}
             <form method="post" enctype="multipart/form-data">
@@ -52,13 +52,97 @@
             <div class="progress mt-3">
               <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
+            {% if request.user.is_superuser %}
+            <div></div>
+            {% comment %} {% if request.user.is_superuser %}
+
+            <div class="row">
+              <div class="col">
+                <div>the deadline of submission is </div>
+              </div>
+              <div class="col">
+                {% for sub in sub %}
+                {% if sub.level.name|lower == 'bachelor degree'%}
+                bachelor: <div  id="event-box"> {{sub.when|date:"M d, Y H:m:s"}}</div>
+                {% elif sub.level.name|lower == 'ordinary diploma' %}
+                OD: <div  id="event-box"> {{sub.when|date:"M d, Y H:m:s"}}</div>
+                {% endif %}
+                
+              </div>
+            </div>
+            <div class="text-center mt-3 h6"><b>Time left</b></div>
+            <div id="countdown-box" style="color:red"class="text-center mt-3 h6">
+              <div class="spinner-border" style="color:black" role="status"><div>
+            </div>
+            {% endfor %}
+
+
+            {% else %} {% endcomment %}
+            {% else %}
+            <div class="row">
+              <div class="col">
+                <div>the deadline of submission is : </div>
+              </div>
+              <div class="col">
+                <div  id="event-box"> {{sub.when|date:"M d, Y H:m:s"}}</div>
+              </div>
+            </div>
+            <div class="text-center mt-3 h6"><b>Time left</b></div>
+            <div id="countdown-box" style="color:red"class="text-center mt-3 h6">
+              <div class="spinner-border" style="color:black" role="status"><div>
+            </div>
+            {% endif %}
+
+            
           {% endif %}
         </div>
       </div>
     </div>
   </div>
 </div>
+{% if request.user.is_superuser %}
+<div></div>
+{% else %}
+<script>
+  
+  const eventBox = document.getElementById('event-box')
+  
+  const countdownBox = document.getElementById('countdown-box')
+  const rex = document.getElementById('rex')
+  //console.log(eventBox.textContent)
+  const eventDate = Date.parse(eventBox.textContent)
+  //console.log(eventDate)
 
+  
+
+const myCountdown = setInterval(()=>{
+    const now = new Date().getTime()
+    //console.log(now)
+    const diff = eventDate - now
+    //console.log(diff)
+
+    const d = Math.floor(eventDate/(1000 * 60 * 60 * 24) - (now / (1000 * 60 * 60 * 24)))
+    //console.log(d)
+    const h = Math.floor((eventDate/(1000 * 60 * 60) - (now / (1000 * 60 * 60)))%24)
+    //console.log(h)
+
+    const m = Math.floor((eventDate/(1000 * 60 ) - (now / (1000 * 60 )))%60)
+    //console.log(m)
+    const s = Math.floor((eventDate/(1000) - (now / (1000)))%60)
+    //console.log(s)
+    if (diff>0){
+      countdownBox.innerHTML= d + " days, " + h + " hours, " + m + " minutes, " + s + " seconds"
+    }else{
+      clearInterval(myCountdown)
+      //rex.innerHTML="TIME OUT"
+      window.location.href = "/deadline";
+    }
+
+  },1000)
+
+  
+</script>
+{% endif %}
 <script>
   $(document).ready(function() {
     $('form').submit(function(event) {

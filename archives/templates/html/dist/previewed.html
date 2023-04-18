@@ -21,7 +21,7 @@
 		{% comment %} order: 2; /* Change the order to 2 to move it to the bottom */ {% endcomment %}
 	}
 	iframe {
-		width: 50%;
+		width: 100%;
 		height: 100%;
 		-webkit-user-select: none; /* Safari */
 		-webkit-user-select: none; /* Opera */
@@ -34,7 +34,7 @@
 			flex-basis: 40%;
 		}
 		.right-column {
-			flex-basis: 60%;
+			flex-basis: 100%;
 		}
 	}
 </style>
@@ -45,28 +45,39 @@
 
 	{% for d in d %}
 	<div class="container">
-		<div class="left-column">
+		{% comment %} <div class="left-column">
 			<div class="row">
 				<div class="col col-md-4">
 			<img src="{{d.project.student.photo.url}}"/>
 				</div>
 				<div class="col col-md-8">
-			<table></table>
+			<table>
 			<tr>
-				<td>Name: </td>
-				<td>{{d.project.student.user.first_name}}</td>
+				<td><b>Title:</b> {{d.project.title}}</td>
 			</tr>
+			<tr>
+				<td><b>Name:</b> {{d.project.student.user.first_name}}</td>
+			</tr>
+			<tr>
+				<td><b>RegNo:</b> {{d.project.student.regNo}}</td>
+			</tr>
+		</table>
 				</div>
 			</div>
-			{% comment %} <img src="/media/coverpage/{{d.cover}}" alt="Cover Page"> {% endcomment %}
-		</div>
+			
+		</div> {% endcomment %}
        
 		<div class="right-column">
-			{% comment %} #toolbar=0 {% endcomment %}
-			<iframe id="iframe_pdf" src="{{d.file.url}}#page=1&view=FitH,0&zoom=auto&pagemode=none&toolbar=0" style="height:50%; width:67%" 
-      ></iframe> 
-	  {% comment %} <embed src="{{d.file.url}}#toolbar=0" width="500" height="700" type='application/pdf'> {% endcomment %}
+			
+			{% if request.user.is_staff %}
+			<iframe id="iframe_pdf" src="{{d.file.url}}#page=1&view=FitH,0&zoom=auto&pagemode=none" style="height:50%; width:100%" ></iframe>
+	  {% else %}
+	  <iframe id="iframe_pdf" src="{{d.file.url}}#page=1&view=FitH,0&zoom=auto&pagemode=none&toolbar=0" style="height:50%; width:100%" 
+      ></iframe>
+	  {% endif %}
+	  
 
+	  
 	  <button id="load-more" style="display:none;">Load More Pages</button>
 	  <script>
 		const pdfContainer = document.getElementById('right-column');

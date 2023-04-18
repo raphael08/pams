@@ -68,8 +68,8 @@
     </li>
     {% endif %}
     {% if perms.archives.view_document%}
-            <li class="{% if side == 'upload_project' %} active {% elif side == 'projects' %} active {% endif %}">
-                <a href="javascript:;" class="{% if side == 'upload_project' %} active {% elif side == 'project' %} active {% endif %}"><i class="sidebar-item-icon fa fa-book"></i>
+            <li class="{% if side == 'upload_project' %} active {% elif side == 'projects' %} active {% elif side == 'manage_project'%} active {% endif %} ">
+                <a href="javascript:;" class="{% if side == 'upload_project' %} active {% elif side == 'project' %} active {% elif side == 'manage_project' %} active {% endif %}"><i class="sidebar-item-icon fa fa-book"></i>
                     <span class="nav-label">Project Management</span><i class="fa fa-angle-left arrow"></i></a>
                 <ul class="nav-2-level collapse"> 
                     <li class="{% if side == 'projects' %} active {% endif %}">
@@ -83,6 +83,14 @@
                     <span class="nav-label">Upload Project</span></i></a>
                
             </li>
+            {% endif %}
+            {% if perms.archives.add_document %}
+            <li class="{% if side == 'manage_project' %} active {% endif %}">
+                <a class="{% if side == 'manage_project' %} active {% endif %}" href="/manage_project" class=""><i class="sidebar-item-icon fa fa-database"></i>
+                    <span class="nav-label">Manage Project</span></i></a>
+               
+            </li>
+
             {% endif %}
                 </ul>
             </li>
