@@ -106,10 +106,12 @@ class Document(models.Model):
 
 class Progress(models.Model):
     document = models.OneToOneField(Document,on_delete=models.CASCADE,null=True,blank=True)
-    staff = models.ForeignKey(Staff,on_delete=models.CASCADE,null=True,blank=True)
-    prog = models.IntegerField(null=True,blank=True)
-    comments = models.TextField(max_length=100,null=True,blank=True) 
+    #staff = models.ForeignKey(Staff,on_delete=models.CASCADE,null=True,blank=True)
+    prog = models.IntegerField(default=0,null=True,blank=True)
+    #comments = models.TextField(max_length=100,null=True,blank=True) 
     date_created = models.DateField(auto_now_add=True)
+    
+    status = models.BooleanField(null=True,blank=True,default=False)
     
     def __str__(self):
         return str(self.prog)

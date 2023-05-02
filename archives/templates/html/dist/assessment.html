@@ -4,54 +4,62 @@
             <!-- START PAGE CONTENT-->
             <div class="page-content fade-in-up">
                 {% include "includes/messages.html" %}
-                <div class="row">
-                    {% if perms.archives.view_student %}
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-success color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">{{s}}</h2>
-                                <div class="m-b-5">Student</div><i class="ti-user widget-stat-icon"></i>
-                                
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if perms.archives.view_document %}
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-info color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">{{p}}</h2>
-                                <div class="m-b-5">Projects</div><i class="ti-files widget-stat-icon"></i>
-                                {% comment %} <div><i class="fa fa-level-up m-r-5"></i><small>17% higher</small></div> {% endcomment %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if perms.archives.view_department %}
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-warning color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">{{d}}</h2>
-                                <div class="m-b-5">Departments</div><i class="fa fa-university widget-stat-icon"></i>
-                                {% comment %} <div><i class="fa fa-level-up m-r-5"></i><small>22% higher</small></div> {% endcomment %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if perms.archives.view_staff %}
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-danger color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">{{f}}</h2>
-                                <div class="m-b-5">Staff</div><i class="ti-user widget-stat-icon"></i>
-                                {% comment %} <div><i class="fa fa-level-down m-r-5"></i><small>-12% Lower</small></div> {% endcomment %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-                {% comment %} {% if perms.archives.view_progress %}
+                {% if perms.archives.view_progress %}
                 <div class="page-content fade-in-up">
+
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            
+                            <div class="ibox-title">Data Table</div>
+                            <button class="btn btn-primary" data-toggle="modal"
+                            data-target="#modal-lgx"><i class="fa fa-plus"></i> New </button>
+                    </div>
+                       
+                        <div class="ibox-body">
+                          <div class="table-wrapper" role="group" aria-labelledby="caption">
+                                <table id="data-tabl" class="table table-striped table-bordered" style="width:100%">
+                                  <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                      <th>Time</th>
+                                      
+                                      
+                                      <th>Level</th>
+                                      <th>Action</th>
+                                      
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for s in sub %}
+                                    <tr>
+                                      <td>{{s.when|date:'Y-m-d'}}</td>
+                                      <td>{{s.when|date:'H:i'}}</td>
+                                      <td>{{s.level.name | title}}</td>
+                                      
+                                      <td>
+                                        
+                                        <button class="btn btn-default" data-toggle="modal"
+                                        data-target="#modal-viewz{{s.id}}"><i class="fa fa-eye font-14"></i></button>
+                                        
+                                        <button class="btn btn-default" data-toggle="modal"
+                                        data-target="#modalz{{s.id}}"><i class="fa fa-pencil font-14"></i></button>
+                                        <button class="btn btn-default"data-toggle="modal" data-target="#modz{{s.id}}"><i class="fa fa-trash font-14"></i></button>
+                                        
+                                            
+                                        
+                                       
+                                    </td>
+                                    </tr>
+                                    {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                              
+                        </div>
+                    </div>
+
+
+
                     <div class="ibox">
                         <div class="ibox-head">
                             
@@ -86,16 +94,19 @@
                                       <td>{{s.document.project.student.course | title}}</td>
                                       <td>{{s.document.project.title | title }}</td>
                                       <td>{{s.document.submitted}}</td>
-                                      <td>{{s.prog}}</td>
-                                      
-                                      </td> 
+                                      {% if s.prog < 75 %}
+                                      <td style="color:red">{{s.prog}}%</td>
+                                      {% else %}
+                                      <td style="color:green"r>{{s.prog}}%</td>
+                                      {% endif %}
                                       <td>
-                                        
+                                        {% if s.prog == 0 %}
                                         <button class="btn btn-default" data-toggle="modal"
-                                        data-target="#modal-viewz{{s.user.id}}"><i class="fa fa-eye font-14"></i></button>
+                                        data-target="#modal-viewz{{s.id}}"><i class="fa fa-eye font-14"></i></button>
+                                        {% endif %}
                                         <button class="btn btn-default" data-toggle="modal"
-                                        data-target="#modal-lg1z{{s.user.id}}"><i class="fa fa-pencil font-14"></i></button>
-                                        <button class="btn btn-default"data-toggle="modal" data-target="#modal-dangerz{{s.user.id}}"><i class="fa fa-trash font-14"></i></button>
+                                        data-target="#modal{{s.id}}"><i class="fa fa-pencil font-14"></i></button>
+                                        <button class="btn btn-default"data-toggle="modal" data-target="#modal-dangerz{{s.id}}"><i class="fa fa-trash font-14"></i></button>
                                         
                                             
                                         
@@ -109,22 +120,85 @@
                               
                         </div>
                     </div>
-                    {% else %} {% endcomment %}
-                    <div class="col-md-12">
-                        <h5><b>Welcome, {{request.user.first_name}}</b></h5>
-                        
+
+
+
                     
-                          <p>You have successfully logged into Project Archives Management System (PAMS)</p>
-                          {% comment %} <h5><b>Profile</b></h5>
-                          <p>Here you can edit/update your personal information</p> {% endcomment %}
-                          <h5><b>Project Management</b></h5>
-                          <p>View , Search diffrent projects based on your choice</p>
-                          <h5><b>Project Type</b></h5>
-                          <p>View available Project Type of diffrent department</p>
-                          
-                    </div>  
+                    {% endif %}
+
+                    {% for s in sub %}
+                    <form method="post" action="/editsubtime/{{s.id}}">
+                        {% csrf_token %}
+                        <div class="modal fade" id="modalz{{s.id}}">
+                            <div class="modal-dialog modal-lg1">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Edit Date and Time</h4>
+                                        {% comment %} <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button> {% endcomment %}
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>
+                                        <div class="row">
+                                            <div class="col col-md-12">
+                                                <label>Date</label>
+                                                <input type="date" value="{{s.when|date:'Y-m-d'}}" name="date" class="form-control"
+                                                    placeholder="Date">
+                                            </div>
+                                            <div class="col col-md-12">
+                                                <label>Time</label>
+                                                <input type="time" name="time" value="{{s.when|date:"H:i"}}" class="form-control"
+                                                    placeholder="Time">
+                                            </div>
+                                        </div>
+                                        
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary ">Submit</button>
+                                        
+                                    </div>
+                                    
+                                </div>
+                
+                                
+                                <!-- /.modal-content -->
+                            </div>
+                            <!-- /.modal-dialog -->
+                        </div>
+                        <!-- /.modal -->
+                    </form>
+
+
+
+                    <div class="modal fade" id="modz{{s.id}}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="deleteModalLabel">delete Confirmation</h5>
+                              {% comment %} <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button> {% endcomment %}
+                             
+                            </div>
+                            <div class="modal-body">
+                              Are you sure you want to delete this record?
+                            </div>
+                            
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                          <a href="/deletesub/{{s.id}}" class="btn btn-danger">Delete</a>
+                        </div>
                     
-                    {% for s in o %}
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                </div>
+
+                    {% for s in b %}
                 
                 {% if s.user.is_active == True %}
                       <div class="modal fade" id="modal-block{{s.user.id}}" aria-hidden="true">
@@ -201,67 +275,77 @@
                 
                       <div>
                     
-                            <div class="modal fade" id="modal-viewz{{s.user.id}}">
+                            <div class="modal fade" id="modal-viewz{{s.id}}">
                                 <div class="modal-dialog modal-lg1">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h4 class="modal-title">View Student</h4>
+                                            <h4 class="modal-title">Student Assessment</h4>
                                         </div>
                                         <div class="modal-body">
                                             <p>
-                                            <div class="row">
-                                                <div class="col-lg-12 col-md-4">
-                                                    <div class="ibox">
-                                                        <div class="text-center">
-                                                            <div class="m-t-20">
-                                                                <img class="img-circle" src="{{s.photo.url}}" />
-                                                            </div>
-                                                            <h5 class="font-strong m-b-10 m-t-10">{{u.user.first_name}}</h5>
-                                                            <div class="m-b-20 active">{{s.regNo}}</div>
-                                                          
+                                                <form method="POST" action="/progress">
+                                                    {% csrf_token %}
+                                                    <div class="row">
+                                                        <div class="col col-md-12">
+                                                            <input type="hidden" name="id" value="{{s.id}}" min="0" max="40" class="form-control"
+                                                                placeholder="System Analysis and Design">
+                                                            
                                                         </div>
+                                                        <br><br>
+                                                        <div class="col col-md-9">
+                                                            <input type="number" id="number{{s.id}}" class="form-control" placeholder="Number of Specific Objectives">
+                                                        </div>
+                                                        <div class="col col-md-3">
+                                                            <label></label>
+                                                            <button class="btn btn-primary" type="button" onclick="addFields({{s.id}})">Submit</button>
+                                                        </div>
+                                                        
+                                                        <div class="col col-md-6" id="container{{s.id}}">
+                                                            <!-- input fields will be added here -->
+                                                        </div>
+                                                
+                                                        <div class="col col-md-12" id="submit-btn-container-{{s.id}}" style="display:none;">
+                                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                                
+                                                <script>
+                                                    function addFields(id){
+                                                        var number = document.getElementById("number"+id).value;
+                                                        var container = document.getElementById("container"+id);
+                                                        var submitBtnContainer = document.getElementById("submit-btn-container-"+id);
+                                                        var marks = 100/number;
+                                                        while (container.hasChildNodes()) {
+                                                            container.removeChild(container.lastChild);
+                                                        }
+                                                        for (i=0;i<number;i++){
+                                                            var div = document.createElement("div");
+                                                            var label = document.createElement("label");
+                                                            var input = document.createElement("input");
+                                                            var inputId = "input-" + id + "-" + i;
+                                                            
+                                                            label.innerHTML = "Objective " + (i+1) + " marks " + marks;
+                                                            label.setAttribute("for", inputId);
+                                                            input.type = "number";
+                                                            input.name = 'data';
+                                                            input.id = inputId;
+                                                            input.min = 0;
+                                                            input.max = marks;
+                                                            input.className = "form-control";
+                                                            
+                                                            div.appendChild(label);
+                                                            div.appendChild(input);
+                                                            container.appendChild(div);
+                                                            container.appendChild(document.createElement("br"));
+                                                        }
+                                                        submitBtnContainer.style.display = "block";
+                                                    }
+                                                </script>
                                                 
                                                         
                                                     </div>
-                                                    <div class="ibox">
-                                                        <div class="ibox-body">
-                                                            
-                                                                <div class="row text-center">
-                                                                    <div class="col-3 text-muted active">Email</div>
-                                                                    <div class="col-2 text-muted active"></div>
-                                                                    <div class="col-4 text-muted active">{{s.user.username}}</div>
-                                                                </div><hr>
-                                                                <div class="row text-center">
-                                                                    <div class="col-3 text-muted active">mobile</div>
-                                                                    <div class="col-2 text-muted active"></div>
-                                                                    <div class="col-4 text-muted active">{{s.mobile}}</div>
-                                                                </div><hr>
-                                                                <div class="row text-center">
-                                                                    <div class="col-3 text-muted active">Course</div>
-                                                                    <div class="col-2 text-muted active"></div>
-                                                                    <div class="col-4 text-muted active">{{s.course| title}}</div>
-                                                                </div><hr>
-                                                                <div class="row text-center">
-                                                                    <div class="col-3 text-muted active">Department</div>
-                                                                    <div class="col-2 text-muted active"></div>
-                                                                    <div class="col-4 text-muted active">{{s.department.name | title}}</div>
-                                                                </div><hr>
-                                                                <div class="row text-center">
-                                                                    <div class="col-3 text-muted active">NTA_Level</div>
-                                                                    <div class="col-2 text-muted active"></div>
-                                                                    <div class="col-4 text-muted active">{{s.NTA_Level}}</div>
-                                                                </div><hr>
-                                                                <div class="row text-center">
-                                                                    <div class="col-3 text-muted active">Gender</div>
-                                                                    <div class="col-2 text-muted active"></div>
-                                                                    <div class="col-4 text-muted active">{{s.gender}}</div>
-                                                                </div><hr>
-                                                                <div class="row text-center">
-                                                                    <div class="col-3 text-muted active">Academic Year</div>
-                                                                    <div class="col-2 text-muted active"></div>
-                                                                    <div class="col-4 text-muted active">{{s.academic_year}}</div>
-                                                                </div>
-                                                            </div>
+                                                    
                                                             {% comment %} <p class="text-center">Lorem Ipsum is simply dummy text of the printing and industry. Lorem Ipsum has been</p> {% endcomment %}
                                                         </div>
                                                     </div>
@@ -275,7 +359,51 @@
                                 <!-- /.modal-dialog -->
                             </div>
                             <!-- /.modal -->
-                     
+                            <div class="modal fade" id="modal{{s.id}}">
+                                <div class="modal-dialog modal-lg1">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">Edit Assessment</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>
+                                                <form method="POST" action="/progress">
+                                                    {% csrf_token %}
+                                                <div class="row">
+                                                    <div class="col col-md-12">
+                                                        {% comment %} <label>Date</label> {% endcomment %}
+                                                        <input type="hidden" name="id" value="{{s.id}}" min=0 max=40 class="form-control"
+                                                            placeholder="System Analysis and Design">
+                                                        <input type="number" name="data" value="{{s.prog}}" min=0 max=100 class="form-control"
+                                                            placeholder="Total Marks">
+                                                    </div>
+                                                    <br><br>
+                                                    
+                                                    <div class="col col-md-3">
+                                                        <label></label>
+                                                        <button class="btn btn-primary" type="submit">Submit</button>
+             
+                                                    </div>
+                                                    
+	
+                                                    
+                                            </form>
+                                                
+                                                        
+                                                    </div>
+                                                    
+                                                            {% comment %} <p class="text-center">Lorem Ipsum is simply dummy text of the printing and industry. Lorem Ipsum has been</p> {% endcomment %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                        
+                                    </div>
+                                </div>
+                                    
+                                    <!-- /.modal-content -->
+                                </div>
+                                <!-- /.modal-dialog -->
+                            </div>
                     </div>
                       {% endfor %}
                     <div>  

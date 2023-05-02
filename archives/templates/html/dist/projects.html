@@ -144,20 +144,25 @@
         {% for d in d %}
         
         <div class="cards">
-          <div class="card-images"><a href="/preview_pdf/{{d.id}}"><img src="/media/coverpage/{{d.cover}}" style="height:250px; width:320px" alt=""></a>
+          <div class="card-images"><a href="/preview_pdf/{{d.document.id}}"><img src="/media/coverpage/{{d.document.cover}}" style="height:250px; width:320px" alt=""></a>
           </div>
           <div class="card-infos">
-            <h6>{{d.project.title}}</h6>
-            <p>{{d.project.project_type.name | title}}</p>
-            <p>{{d.project.student.level.name | title}}</p>
-            <p>{{d.project.student.department.name | title}}</p>
-            <p>{{d.project.student.academic_year}}</p>
+            <h6>{{d.document.project.title}}</h6>
+            <p>{{d.document.project.project_type.name | title}}</p>
+            <p>{{d.document.project.student.level.name | title}}</p>
+            <p>{{d.document.project.student.department.name | title}}</p>
+            <p>{{d.document.project.student.academic_year}}</p>
             <form id="myForm">
               {% csrf_token %}
               <input type="hidden" id="id" name="id" value="{{d.id}}">
             {% comment %} <div id="like-button"> {% endcomment %}
-              <i class="fa fa-heart like-button" onclick="submitForm()"></i>
+              {% comment %} <i class="fa fa-heart like-button" onclick="submitForm()"></i> {% endcomment %}
             {% comment %} </div> {% endcomment %}
+            {% if d.prog > 75%}
+            <p style="color:green">{{d.prog}}%</p>
+            {% else %}
+            <p style="color:red">{{d.prog}}%</p>
+            {% endif %}
             </form>
           </div>
           

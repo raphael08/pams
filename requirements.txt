@@ -12,12 +12,12 @@ gunicorn==20.1.0
 idna==3.4
 img2pdf==0.4.4
 lxml==4.9.2
-numpy==1.24.2
+numpy
 packaging==23.0
-pandas==1.5.3
+pandas
 pdf2image==1.16.3
 pdf2jpg==1.1
-pikepdf==7.1.1
+pikepdf
 Pillow==9.4.0
 psycopg2==2.9.5
 psycopg2-binary==2.9.5
@@ -33,3 +33,4 @@ typing_extensions==4.5.0
 urllib3==1.26.15
 whitenoise==6.4.0
 wincertstore==0.2
+python-Levenshtein

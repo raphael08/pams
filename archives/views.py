@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render,HttpResponse
 from django.contrib.auth.models import User,auth,Permission,Group
 from django.contrib import messages
 from django.db.models import Q
+import pytz
 from .models import *
 from django.contrib.auth.hashers import make_password
 import random 
@@ -80,6 +81,8 @@ def login(request):
          if us.is_staff==False:
             if current_date >=october:
                rex.studentInfo(email=request.POST.get("username"), password=request.POST.get("password"))
+               
+            
                # if rex.error == "no internet connection":
                #    messages.error(request,rex.error)
                #    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -218,7 +221,7 @@ def login(request):
 
 @login_required(login_url='/login')
 def dashboard(request):
-   
+ try:
    s = Student.objects.all().count()
    d = Department.objects.all().count()
    # if request.user.is_superuser:
@@ -230,11 +233,36 @@ def dashboard(request):
    finalB =  Progress.objects.all()
    finalD =  Student.objects.filter(NTA_Level=6)
    k = request.POST.dict()
-  
+   # print(request.user.student.level.id)
    return render(request,'html/dist/index.html',{'side':'dashboard','s':s,'d':d,'f':f,'p':p,'b':finalB,'o':finalD})
+ except:
+  messages.error(request,'Something went wrong')
+  return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required(login_url='/login')
+def assessment(request):
+ try:
+  if request.user.is_superuser:
+      
+   finalB =  Progress.objects.all()
+   sub = Submission.objects.all()
+  else:
+  
+   try:
+    finalB =  Progress.objects.filter(document__project__staff__level__id=request.user.staff.level.id) 
+    sub = Submission.objects.filter(level__id=request.user.staff.level.id) 
+   except:
+      finalB =  Progress.objects.all()
+      sub = Submission.objects.all()
+
+  return render(request,'html/dist/assessment.html',{'side':'assessment','b':finalB,'sub':sub})
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @login_required(login_url='/login')
 def student(request):
+ try:
    exclude_perm=[1,2,3,4,13,14,15,16,17,18,19,20,21,22,23,24,37]
    p = Permission.objects.exclude(id__in=exclude_perm)
    
@@ -243,9 +271,13 @@ def student(request):
    g = Group.objects.all()
    
    return render(request,'html/dist/students.html',{'side':'being','s':s,'d':d,'g':g,'p':p})
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @login_required(login_url='/login')
 def student_od(request):
+ try:
    exclude_perm=[1,2,3,4,13,14,15,16,17,18,19,20,21,22,23,24,37]
    p = Permission.objects.exclude(id__in=exclude_perm)
    s = Student.objects.filter(NTA_Level__lte=6,NTA_Level__gte=4)
@@ -253,6 +285,9 @@ def student_od(request):
    g = Group.objects.all()
    
    return render(request,'html/dist/students_od.html',{'side':'od','s':s,'d':d,'g':g,'p':p})
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @login_required(login_url='/login')
 def addstudent(request):
@@ -301,7 +336,7 @@ def addstudent(request):
 
 @login_required(login_url='/login')
 def addstaff(request):
-
+ try:
    if request.method == "POST":
       
       name = request.POST.get('name')
@@ -328,14 +363,14 @@ def addstaff(request):
       # # Save pages as images in the pdf
       # images[0].save(f'{cover}\\page' +'.jpg', 'JPEG') 
       u = User.objects.create(username=email,email=email,password=password,first_name=name,is_staff=True)
-      Staff.objects.create(user=u,staff_id=staff_id,mobile=mobile,department_id=departments,gender=gender,level=level)
+      Staff.objects.create(user=u,staff_id=staff_id,mobile=mobile,department_id=departments,gender=gender,level_id=level)
       u.groups.add(group)
    
       messages.success(request,'Staff created successful')
       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-#  except:
-#     messages.error(request,'Something went wrong')
-#     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
  
  
 @login_required(login_url='/login')
@@ -391,6 +426,7 @@ def editstudent(request,pk):
    
 @login_required(login_url='/login')
 def staff(request):
+ try:
    l = Level.objects.all()
    
    exclude_perm=[1,2,3,4,13,14,15,16,17,18,19,20,21,22,23,24,37]
@@ -400,6 +436,9 @@ def staff(request):
    g = Group.objects.all()
    
    return render(request,'html/dist/staffs.html',{'side':'staff','s':s,'d':d,'g':g,'p':p,'l':l})
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @login_required(login_url='/login')
 def department(request):
@@ -460,7 +499,7 @@ def addprojecttype(request):
       return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
 @login_required(login_url='/login')
 def editprojecttype(request,pk):
-   
+  try:
    if request.method == "POST":
       name = request.POST.get("name")
       department = request.POST.get("department") 
@@ -472,6 +511,9 @@ def editprojecttype(request,pk):
         Project_type.objects.filter(id=pk).update(name=name)
         messages.success(request,'Project Type edited successful')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
+  except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
  
 
 @login_required(login_url='/login')
@@ -555,12 +597,15 @@ def update_level(request,pk):
  
 @login_required(login_url='login/')
 def manageroles(request):
-       
+   try: 
       g = Group.objects.all().order_by('id')
       exclude_perm=[1,2,3,4,13,14,15,16,17,18,19,20,21,22,23,24]
       p = Permission.objects.exclude(id__in=exclude_perm)
       
       return render(request,'html/dist/manageroles.html',{'side':'role','p':p,'g':g})
+   except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @login_required(login_url='login/')
 def addroles(request):
@@ -579,7 +624,9 @@ def addroles(request):
       messages.success(request,'Role added successful')
       return redirect('/manageroles')  
   except:
-      messages.error(request,'something is wrong')
+      
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required(login_url='/login')
@@ -636,12 +683,15 @@ def blockuser(request,pk):
 
 @login_required(login_url='/login')   
 def deleteroles(request,pk):
-    
+   try: 
     g = Group.objects.filter(id=pk).delete()
     if g:
        messages.success(request,'Role deleted successful')
     
     return redirect('/manageroles')
+   except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 @login_required(login_url='/login')
 def reset_password(request,pk):
    password = make_password("@DIT123")
@@ -795,9 +845,9 @@ def upload_student(request):
 
 @login_required(login_url='/login')
 def projects(request):
-   
-   d = Document.objects.all()
-   l = Document.objects.all().count()
+ try:
+   d = Progress.objects.filter(status=True)
+   l = Progress.objects.filter(status=True).count()
    f = Department.objects.all()
    s = Student.objects.values_list('academic_year',flat=True).distinct()
    s = list(s)
@@ -806,9 +856,13 @@ def projects(request):
    name = request.POST.get('department')
    g = Project_type.objects.filter(department__name = name)
    return render(request,'html/dist/projects.html',{'side':'projects','d':d,'f':f,'s':s,'g':g,'l':l})
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @login_required(login_url='/login')
 def changepassword(request):
+ try:
    if request.method =='POST':
       old = request.POST.get("old")
       new = request.POST.get("new")
@@ -825,8 +879,12 @@ def changepassword(request):
       else:
          messages.error(request,'Check Your Old Password')
          return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
       
 def upload(request):
+ try:
    if request.method == 'POST':
       
       
@@ -839,7 +897,9 @@ def upload(request):
    finalB =  Progress.objects.all()
    finalD =  Student.objects.filter(NTA_Level=6)
    return render(request,'html/dist/project.html',{'side':'dashboard','s':s,'d':d,'f':f,'p':p,'b':finalB,'o':finalD})
-   
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 import PyPDF2
 import docx2txt
 from fuzzywuzzy import fuzz
@@ -999,8 +1059,10 @@ def check_file_similarity(file_path):
 def pdf_upload(request):
     
     
-    
+   try:
     if request.method == 'POST' and request.FILES['pdf']:
+        j = Document.objects.filter(project__student_id=request.user.student.id).exists() 
+        role = Group.objects.get(name='Student')  
         title = request.POST.get('title')
         type = request.POST.get('type')
         file = request.FILES.get('pdf').read()
@@ -1022,7 +1084,7 @@ def pdf_upload(request):
          if len(similarity_scores)==0:
             images = convert_from_path(path,poppler_path=poppler_path)
             name = str(pdf)[-6:-4]
-            pdf =  str(pdf)[:-4]
+            pdfs=  str(pdf)[:-4]
             
             names = f'{name}'+'.jpg'
             paths = f'{cover}\\{names}' 
@@ -1037,13 +1099,14 @@ def pdf_upload(request):
             p.groups.add(role)
             images[0].save(paths) 
             profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
-            os.remove(f'{profile}\\{str(pdf)}')      
-            pdf_file = Document(cover=names,file=pdf,project_id = project.id )
+                
+            pdf_file = Document(cover=names,file=pdf,project_id = project.id,submitted=True)
             pdf_file.save()
-             
+            Progress.objects.create(document_id=pdf_file.id)
             messages.success(request, 'Your PDF was uploaded successfully!')
             #os.remove(path)
-            return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file,'j':j})
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+            #return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file,'j':j})
          else:
                      # if max(similarity_scores,key=lambda x:x[1])[1] == 100:
                      #       messages.error(request, 'File Exists')
@@ -1052,7 +1115,7 @@ def pdf_upload(request):
                      if max(similarity_scores,key=lambda x:x[1])[1] > 80:
                         print(f'projects/{max(similarity_scores,key=lambda x:x[1])[0]}')
                         d = Document.objects.get(file=f'projects/{max(similarity_scores,key=lambda x:x[1])[0]}')
-                        print(d)
+                        
                         messages.error(request, f'Your file is {max(similarity_scores,key=lambda x:x[1])[1]} %  resemble with project with title {d.project.title.title()} of year {d.project.student.academic_year} {d.project.student.level.name.title()} from {d.project.student.department.name.title()} Department')
                         # profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
                         # os.remove(f'{profile}\\{str(pdf)}') 
@@ -1078,12 +1141,15 @@ def pdf_upload(request):
                         # Save pages as images in the pdf
                         images[0].save(paths) 
                         profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
-                        os.remove(f'{profile}\\{str(pdf)}')           
-                        pdf_file = Document(cover=name,file=pdf,project_id = project.id )
+                        #os.remove(f'{profile}\\{str(pdf)}')           
+                        pdf_file = Document(cover=name,file=pdf,project_id = project.id,submitted=True)
                         pdf_file.save()
-                        messages.success(request, 'Your PDF was uploaded successfully!')
                         
-                        return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file,'j':j})
+                        Progress.objects.create(document_id=pdf_file.id)
+                        
+                        messages.success(request, 'Your PDF was uploaded successfully!')
+                        return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+                        #return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file,'j':j})
          # else:
          #    messages.error(request, 'Upload your document with cover page') 
          #    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
@@ -1095,25 +1161,32 @@ def pdf_upload(request):
            
      p  = Project_type.objects.all()
      sub = Submission.objects.all()
-   #   s = Student.objects.filter(NTA_Level = 8)
+      #s = Student.objects.filter(NTA_Level = 8)
     elif request.user.is_staff:
             
             p  = Project_type.objects.filter(department_id=request.user.staff.department.id)
-            sub = Submission.objects.get(level=request.user.staff.level.id) 
+            sub = Submission.objects.filter(level=request.user.staff.level.id) 
     else:
-       sub = Submission.objects.get(level=request.user.student.level.id)
+       sub = Submission.objects.filter(level_id=request.user.student.level.id)
        
        p  = Project_type.objects.filter(department_id=request.user.student.department.id)
-       j = Document.objects.filter(project__student_id=request.user.student.id).exists()    
+       j = Document.objects.filter(project__student_id=request.user.student.id).exists() 
+        
     role = Group.objects.get(name='Student')    
-    return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':p,'sub':sub})
+    return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':p,'sub':sub,'j':j})
+   except:
+     
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
  
  
 def preview_pdf(request,pk):
-    
+ try: 
    d = Document.objects.filter(id=pk)     
    return render(request, 'html/dist/previewed.html',{'side':'a','d':d})
-
+ except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 def submissionTime(request):
    try:
     
@@ -1125,6 +1198,9 @@ def submissionTime(request):
           y,m,d = date.split("-")
           h,mm = time.split(":")
           date = datetime.datetime(int(y),int(m),int(d),int(h),int(mm))
+         #  tz = pytz.timezone('Africa/Dar_es_Salaam')
+         #  date = tz.localize(date)
+          
           if request.user.staff.level.id == '':
             messages.error(request, 'Data') 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    
@@ -1144,9 +1220,42 @@ def submissionTime(request):
             messages.success(request, 'data saved successful') 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
    except:
-            messages.error(request, 'something went wrong') 
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))      
+    
+def editSubmittionTime(request,pk):
+      try:
+       if request.method == 'POST':
+          date = request.POST.get('date')
+          print(date)
+          time = request.POST.get('time')
+          print(time)
+          #pytz.timezone('Africa/Dar_es_Salaam') 
+          y,m,d = date.split("-")
+          h,mm = time.split(":")
+          date = datetime.datetime(int(y),int(m),int(d),int(h),int(mm))
+          print(date)
+          if date < datetime.datetime.now():
+               messages.error(request, 'date should be greater than today') 
+               return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+          else:
+            Submission.objects.filter(id=pk).update(when=date)    
+            messages.success(request, 'data edited successful') 
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+      except: 
+         messages.error(request, 'data edited successful') 
+         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+def deletesub(request,pk):
+   try:    
+      Submission.objects.get(id=pk).delete() 
+      messages.success(request, 'data edited successful') 
+      return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
+   except:
+      messages.error(request, 'something went wrong') 
+      return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    
 def deadline(request):
  try:
   
@@ -1195,7 +1304,7 @@ def get_project_types(request, department):
  
  
 def manage_project(request):
-  
+  try:
    f = Department.objects.all()
    s = Student.objects.values_list('academic_year',flat=True).distinct()
   
@@ -1204,6 +1313,10 @@ def manage_project(request):
     g = Project_type.objects.all()
    
     d = Document.objects.all()
+   elif request.user.is_staff:
+        
+         g= Project_type.objects.filter(department_id=request.user.staff.department.id)
+         d = Document.objects.filter(project__department_id = request.user.staff.department.id)  
    else:
           g = Project_type.objects.filter(department_id = request.user.student.department.id)
           
@@ -1211,6 +1324,9 @@ def manage_project(request):
    name = request.POST.get('department')
    g = Project_type.objects.filter(department__name = name)
    return render(request,'html/dist/manage_project.html',{'side':'manage_project','d':d,'f':f,'s':s,'g':g})
+  except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def deletepdf(request,pk):
  try:
@@ -1226,3 +1342,53 @@ def deadlines(request):
    
    
    return render(request,'html/dist/deadline.html')
+
+
+
+def progress(request):
+   try:
+    if request.method == 'POST':
+        id= request.POST.get('id')
+       
+        sad=0
+        sad= request.POST.get('sad')
+        if sad is None:
+               sad=0
+        
+        
+        data = request.POST.getlist('data')
+       
+        sum=0
+        for i in data:
+         sum+=int(i)
+        sum = sum+int(sad)
+        
+        Progress.objects.filter(id=id).update(prog=sum,status=True)
+      #   return render(request, 'form_success.html')
+        return redirect('/assessment')
+    else:
+        return redirect('/assessment')
+   except:
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+     
+def autocomplete(request):
+      if 'q' in request.GET:
+        q = request.GET['q']
+        # data = Data.objects.filter(last_name__icontains=q)
+        multiple_q = Q(Q(document__project__title__icontains=q) | Q(last_name__icontains=q))
+        data = Progress.objects.filter(multiple_q)
+        titles = list()
+        for product in data:
+            titles.append(product.title)
+        return JsonResponse(titles, safe=False)
+      else:
+         data = Progress.objects.all()
+      context = {
+         'data': data
+      }
+     
+      
+      return render(request,'html/dist/projects.html',context)

@@ -22,7 +22,7 @@
         </div>
         <div class="card-body">
          
-          {% if pdf_file or j %}
+          {% if j %}
             <p>Your PDF was uploaded successfully!</p>
             <a href="{{ pdf_file.pdf_file.url }}">{{ pdf_file.pdf_file.url }}</a>
           {% else %}
@@ -37,7 +37,7 @@
                 <label for="pdf">Select project type:</label>
                 <Select class="form-control" required name="type">
                   <option disabled selected value>Select project type</option>
-                  {% for p in p%}
+                  {% for p in p %}
                 <option value="{{p.id}}">{{p.name}}</option>
                 {% endfor %}
                 </select>
@@ -84,7 +84,9 @@
                 <div>the deadline of submission is : </div>
               </div>
               <div class="col">
-                <div  id="event-box"> {{sub.when|date:"M d, Y H:m:s"}}</div>
+                {% for sub in sub %}
+                <div  id="event-box"> {{sub.when|date:"M d, Y H:i:s"}}</div>
+              {% endfor %}
               </div>
             </div>
             <div class="text-center mt-3 h6"><b>Time left</b></div>
@@ -109,9 +111,9 @@
   
   const countdownBox = document.getElementById('countdown-box')
   const rex = document.getElementById('rex')
-  //console.log(eventBox.textContent)
+  console.log(eventBox.textContent)
   const eventDate = Date.parse(eventBox.textContent)
-  //console.log(eventDate)
+  console.log(eventDate)
 
   
 
@@ -119,7 +121,7 @@ const myCountdown = setInterval(()=>{
     const now = new Date().getTime()
     //console.log(now)
     const diff = eventDate - now
-    //console.log(diff)
+    console.log(diff)
 
     const d = Math.floor(eventDate/(1000 * 60 * 60 * 24) - (now / (1000 * 60 * 60 * 24)))
     //console.log(d)
@@ -129,12 +131,11 @@ const myCountdown = setInterval(()=>{
     const m = Math.floor((eventDate/(1000 * 60 ) - (now / (1000 * 60 )))%60)
     //console.log(m)
     const s = Math.floor((eventDate/(1000) - (now / (1000)))%60)
-    //console.log(s)
+    console.log(s)
     if (diff>0){
       countdownBox.innerHTML= d + " days, " + h + " hours, " + m + " minutes, " + s + " seconds"
     }else{
       clearInterval(myCountdown)
-      //rex.innerHTML="TIME OUT"
       window.location.href = "/deadline";
     }
 
@@ -142,7 +143,7 @@ const myCountdown = setInterval(()=>{
 
   
 </script>
-{% endif %}
+{% endif %} 
 <script>
   $(document).ready(function() {
     $('form').submit(function(event) {
