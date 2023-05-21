@@ -27,8 +27,10 @@ from .models import *
 from django.http import JsonResponse
 from pdf2image import convert_from_path
 import csv
+import shutil
 from fuzzywuzzy import fuzz
 import requests
+from django.views.decorators.csrf import csrf_exempt
 # from projectArchives.settings import *
 # from .soma import rex
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -226,7 +228,7 @@ def dashboard(request):
    d = Department.objects.all().count()
    # if request.user.is_superuser:
           
-   p = Project.objects.all().count()
+   p = Progress.objects.all().count()
    # else:
    #    p = Project.objects.filter(department_id=request.user.student.department.id).count() or Project.objects.filter(department_id=request.user.staff.department.id).count()    
    f  = Staff.objects.all().count()
@@ -241,24 +243,26 @@ def dashboard(request):
 
 @login_required(login_url='/login')
 def assessment(request):
- try:
+#  try:
   if request.user.is_superuser:
       
-   finalB =  Progress.objects.all()
+   finalB =  Progress.objects.filter(document__project__student__academic_year=date) 
    sub = Submission.objects.all()
-  else:
-  
-   try:
-    finalB =  Progress.objects.filter(document__project__staff__level__id=request.user.staff.level.id) 
-    sub = Submission.objects.filter(level__id=request.user.staff.level.id) 
-   except:
-      finalB =  Progress.objects.all()
-      sub = Submission.objects.all()
+  elif request.user.is_staff:
+    date =  datetime.datetime.now().year
+    first = str(date-1)
+    date = str(date)
 
-  return render(request,'html/dist/assessment.html',{'side':'assessment','b':finalB,'sub':sub})
- except:
-    messages.error(request,'Something went wrong')
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    date = f'{first}/{date}'
+    finalB =  Progress.objects.filter(document__project__student__level__id=request.user.staff.level.id).filter(document__project__student__academic_year=date) 
+    sub = Submission.objects.filter(level_id=request.user.staff.level.id).filter(academic_year=date) 
+    ex = Submission.objects.filter(level_id=request.user.staff.level.id).exists()
+   
+
+  return render(request,'html/dist/assessment.html',{'side':'assessment','b':finalB,'sub':sub,'ex':ex})
+#  except:
+#     messages.error(request,'Something went wrong')
+#     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @login_required(login_url='/login')
 def student(request):
@@ -1183,10 +1187,12 @@ def pdf_upload(request):
 def preview_pdf(request,pk):
  try: 
    d = Document.objects.filter(id=pk)     
-   return render(request, 'html/dist/previewed.html',{'side':'a','d':d})
+   return render(request, 'html/dist/previewed.html',{'side':'a','d':d,'id':pk})
  except:
     messages.error(request,'Something went wrong')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+ 
+
 def submissionTime(request):
    try:
     
@@ -1248,13 +1254,31 @@ def editSubmittionTime(request,pk):
 
 
 def deletesub(request,pk):
-   try:    
+   
       Submission.objects.get(id=pk).delete() 
-      messages.success(request, 'data edited successful') 
+      role = Group.objects.get(name='Student')
+      print(request.user.staff.level.id) 
+   
+      date =  datetime.datetime.now().year
+      first = str(date-1)
+      date = str(date)
+
+      date = f'{first}/{date}'
+      for s in (Student.objects.all()):
+       
+       if s.NTA_Level == 8 and s.level.id==request.user.staff.level.id and s.academic_year==date:
+            for i in Group.objects.all():
+                        #print(i.id)
+                        s.user.groups.remove(i.id)   
+            s.user.groups.add(role) 
+       elif s.NTA_Level == 6 and s.level.id==request.user.staff.level.id and s.academic_year==date:
+               for i in Group.objects.all():
+                        s.user.groups.remove(i.id)
+               s.user.groups.add(role)  
+      
+      messages.success(request, 'data deleted successful') 
       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
-   except:
-      messages.error(request, 'something went wrong') 
-      return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
     
 def deadline(request):
  try:
@@ -1262,17 +1286,22 @@ def deadline(request):
   role = Group.objects.get(name='Student') 
   sb = Submission.objects.get(level_id=request.user.student.level.id)
   #print(sb.level_id)
+  date =  datetime.datetime.now().year
+  first = str(date-1)
+  date = str(date)
+
+  date = f'{first}/{date}'
   for s in (Student.objects.all()):
-       
-      if s.NTA_Level == 8 and s.level.id==sb.level_id:
+      
+      if s.NTA_Level == 8 and s.level.id==sb.level_id and s.academic_year==date:
+         for i in Group.objects.all():
+                     #print(i.id)
+                     s.user.groups.remove(i.id)   
+         s.user.groups.add(role) 
+      elif s.NTA_Level == 6 and s.level.id==sb.level_id and s.academic_year==date:
             for i in Group.objects.all():
-                        #print(i.id)
-                        s.user.groups.remove(i.id)   
+                     s.user.groups.remove(i.id)
             s.user.groups.add(role) 
-      elif s.NTA_Level == 6 and s.level.id==sb.level_id:
-               for i in Group.objects.all():
-                        s.user.groups.remove(i.id)
-               s.user.groups.add(role)  
       
       messages.error(request, 'TIMEOUT') 
       #return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
@@ -1288,7 +1317,7 @@ def my_view(request):
     # Pass the date and time values to the template
     
    date=time_instance.date.strftime('%Y-%m-%d')
-   print(date)
+   
    time=time_instance.time.strftime('%H:%m')
    y,m,d = date.split("-")
    h,mm = time.split(":")
@@ -1392,3 +1421,23 @@ def autocomplete(request):
      
       
       return render(request,'html/dist/projects.html',context)
+
+@csrf_exempt
+def save_pdf(request):
+    if request.method == 'POST' and request.FILES['pdf_file']:
+        pdf_file = request.FILES['pdf_file']
+      
+        # Save the file to a specific location on the server
+        with open('media/projects/' + pdf_file.name, 'wb') as destination:
+            shutil.copyfileobj(pdf_file.file, destination)
+            # for chunk in pdf_file.chunks():
+            #     destination.write(chunk)
+        messages.success(request,'Pdf edited successful')
+        return redirect('/assessment')
+         
+    else:
+        messages.error(request,'Something went wrong')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+

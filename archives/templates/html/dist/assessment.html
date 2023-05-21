@@ -10,9 +10,11 @@
                     <div class="ibox">
                         <div class="ibox-head">
                             
-                            <div class="ibox-title">Data Table</div>
+                            <div class="ibox-title">Submission Time</div>
+                            {% if ex == False %}
                             <button class="btn btn-primary" data-toggle="modal"
                             data-target="#modal-lgx"><i class="fa fa-plus"></i> New </button>
+                            {% endif %}
                     </div>
                        
                         <div class="ibox-body">
@@ -25,6 +27,7 @@
                                       
                                       
                                       <th>Level</th>
+                                      <th>Academic Year</th>
                                       <th>Action</th>
                                       
                                     </tr>
@@ -35,6 +38,7 @@
                                       <td>{{s.when|date:'Y-m-d'}}</td>
                                       <td>{{s.when|date:'H:i'}}</td>
                                       <td>{{s.level.name | title}}</td>
+                                      <td>{{s.academic_year}}</td>
                                       
                                       <td>
                                         
@@ -63,7 +67,7 @@
                     <div class="ibox">
                         <div class="ibox-head">
                             
-                            <div class="ibox-title">Data Table</div>
+                            <div class="ibox-title">Student Assessment</div>
                             <button class="btn btn-primary" data-toggle="modal"
                             data-target="#modal-lgx"><i class="fa fa-plus"></i> New </button>
                         </div>
@@ -80,7 +84,7 @@
                                       <th>Course</th>
                                       
                                       <th>Title</th>
-                                      <th>Submitted</th>
+                                      <th>Document</th>
                                       <th>Progress</th>
                                       <th>Action</th>
                                       
@@ -93,7 +97,7 @@
                                       <td>{{s.document.project.student.user.first_name}}</td>
                                       <td>{{s.document.project.student.course | title}}</td>
                                       <td>{{s.document.project.title | title }}</td>
-                                      <td>{{s.document.submitted}}</td>
+                                      <td><a href="preview_pdf/{{s.id}}" ><i class="fa fa-file  font-14"></a></td>
                                       {% if s.prog < 75 %}
                                       <td style="color:red">{{s.prog}}%</td>
                                       {% else %}
@@ -451,6 +455,7 @@
                         <!-- /.modal -->
                     </form>
                 </div>
+            </div>
                 {% comment %} <div class="row">
                     <div class="col-lg-8">
                         <div class="ibox">
@@ -957,6 +962,6 @@
             </div> {% endcomment %}
             <!-- END PAGE CONTENT-->
 {% include "includes/footer.html"%}
-{% include 'includes/theme.html' %}
+
 
             

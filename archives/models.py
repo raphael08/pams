@@ -1,12 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 # Create your models here.
 
 
 # class User(AbstractUser):
 #     class Meta:
 #         db_table = 'users'
+date =  datetime.datetime.now().year
+first = str(date-1)
+date = str(date)
 
+date = f'{first}/{date}'
 class Level(models.Model):
     name = models.CharField(max_length=30)
     date_created = models.DateField(auto_now_add=True)
@@ -122,7 +127,8 @@ class Progress(models.Model):
 class Submission(models.Model):
     when = models.DateTimeField(auto_now=False,auto_now_add=False)
     level = models.OneToOneField(Level,on_delete=models.CASCADE, null=True,blank=True)
-   
+    academic_year =  models.CharField(max_length=50,null=True,blank=True,default=date)
+    status = models.BooleanField(default=True)
     class Meta:
         db_table = "submission"
 
