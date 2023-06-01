@@ -46,6 +46,7 @@ urlpatterns = [
     path("addroles",views.addroles,name="addroles"),
     path("deleteroles/<str:pk>",views.deleteroles,name="deleteroles"),
     path("editroles/<str:pk>",views.editroles,name="editroles"),
+    path('get_courses/', views.get_courses, name='get_courses'),
     # path("edit_speciality/<str:pk>",views.edit_speciality,name="edit_speciality"),
     # path("delete_speciality/<str:pk>",views.delete_speciality,name="delete_speciality"),
     path('save_pdf', views.save_pdf, name='save_pdf'),

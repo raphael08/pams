@@ -25,7 +25,6 @@ class Level(models.Model):
         db_table = "Level"
 class Department(models.Model):
     name = models.CharField(max_length=100)
-   
     
     def __str__(self):
         return self.name
@@ -33,7 +32,17 @@ class Department(models.Model):
     class Meta:
         db_table = "Department"
         
+class Awards(models.Model):
+    name = models.CharField(max_length=100)
+    level = models.ForeignKey(Level,on_delete=models.CASCADE)
+    department = models.ForeignKey(Department,on_delete=models.CASCADE)
     
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = "Awards"
+   
 class Student(models.Model):
     GENDER = (('Male','Male'),('Female','Female'))
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -100,11 +109,12 @@ class Project(models.Model):
 class Document(models.Model):
     project = models.OneToOneField(Project,null=True, blank=True, on_delete=models.CASCADE)
     file = models.FileField(upload_to='projects',null=True,blank=True)
+    preview = models.FileField(upload_to='preview',null=True,blank=True)
     submitted = models.BooleanField(null=True,blank=True,default=False)
     date_created = models.DateField(auto_now_add=True)
     cover = models.ImageField(upload_to='cover', null=True, blank=True)
-    def __str__(self):
-        return str(self.project.title)
+    # def __str__(self):
+    #     return self.id
 
     class Meta:
         db_table = "document"       

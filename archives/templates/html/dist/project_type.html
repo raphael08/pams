@@ -8,8 +8,11 @@
         <div class="ibox-head">
             
             <div class="ibox-title">Data Table</div>
+            {% if perms.archives.add_project_type and perms.archives.delete_project_type%}
             <button class="btn btn-primary" data-toggle="modal"
             data-target="#modal-lg1"><i class="fa fa-plus"></i> New </button>
+
+            {% endif %}
         </div>
         <div class="ibox-body">
             <div class="table-wrapper" role="group" aria-labelledby="caption">

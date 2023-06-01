@@ -106,8 +106,231 @@ data = [
 } ,  
 {"model": "archives.Project_type","pk": 8,        
 "fields": {"name": "AI| ML| Data Mining","department":2,"date_created":str(datetime.datetime.now().date())}
-} , 
-   
+} ,
+
+{
+        "model": "archives.awards",
+        "pk": 1,
+        "fields": {
+            "name": "Ordinary Diploma in Civil Engineering",
+           "department":1,
+           "level":2
+        }
+    }, 
+
+{
+        "model": "archives.awards",
+        "pk": 2,
+        "fields": {
+            "name": "Ordinary Diploma in Mining Engineering",
+           "department":1,
+           "level":2
+        }
+    }, 
+{
+        "model": "archives.awards",
+        "pk": 3,
+        "fields": {
+            "name": "Bachelor of Engineering in Civil Engineering",
+           "department":1,
+           "level":1
+        }
+    }, 
+{
+        "model": "archives.awards",
+        "pk": 4,
+        "fields": {
+            "name": "Bachelor of Engineering in Mining Engineering",
+           "department":1,
+           "level":1
+        }
+    }, 
+{
+        "model": "archives.awards",
+        "pk": 5,
+        "fields": {
+            "name": "Bachelor of Engineering in Oil and Gas Engineering",
+           "department":1,
+           "level":1
+        }
+    }, 
+
+{
+        "model": "archives.awards",
+        "pk": 6,
+        "fields": {
+            "name": "Bachelor of Engineering in Computer Engineering",
+           "department":2,
+           "level":1
+        }
+    }, 
+{
+        "model": "archives.awards",
+        "pk": 7,
+        "fields": {
+            "name": "Ordinary Diploma in Computer Engineering",
+           "department":2,
+           "level":2
+        }
+    }, 
+{
+        "model": "archives.awards",
+        "pk": 8,
+        "fields": {
+            "name": "Ordinary Diploma in Information Technology",
+           "department":2,
+           "level":2
+        }
+    },
+{
+        "model": "archives.awards",
+        "pk": 9,
+        "fields": {
+            "name": "Ordinary Diploma in Multimedia and Film Technology",
+           "department":2,
+           "level":2
+        }
+    },
+{
+        "model": "archives.awards",
+        "pk": 10,
+        "fields": {
+            "name": "Ordinary Diploma in Computer Engineering",
+           "department":2,
+           "level":2
+        }
+    },
+   {
+        "model": "archives.awards",
+        "pk": 11,
+        "fields": {
+            "name": "Ordinary Diploma in Electrical Engineering",
+           "department":3,
+           "level":2
+        }
+    },
+    {
+        "model": "archives.awards",
+        "pk": 12,
+        "fields": {
+            "name": "Ordinary Diploma in Biomedical Equipment Engineering",
+           "department":3,
+           "level":2
+        }
+    },
+     {
+        "model": "archives.awards",
+        "pk": 13,
+        "fields": {
+            "name": "Ordinary Diploma in Renewable Energy Technology",
+           "department":3,
+           "level":2
+        }
+    },
+      {
+        "model": "archives.awards",
+        "pk": 14,
+        "fields": {
+            "name": "Bachelor of Engineering in Electrical Engineering",
+           "department":3,
+           "level":1
+        }
+    },
+      {
+        "model": "archives.awards",
+        "pk": 15,
+        "fields": {
+            "name": "Bachelor in Electronics and Telecommunication Engineering",
+           "department":4,
+           "level":1
+        }
+    },
+      
+        {
+        "model": "archives.awards",
+        "pk": 16,
+        "fields": {
+            "name": "Ordinary Diploma in Electronics and Telecommunication Engineering",
+           "department":4,
+           "level":2
+        }
+    },
+         {
+        "model": "archives.awards",
+        "pk": 17,
+        "fields": {
+            "name": "Ordinary Diploma in Communication System Technology",
+           "department":4,
+           "level":2
+        }
+    },
+         
+              {
+        "model": "archives.awards",
+        "pk": 18,
+        "fields": {
+            "name": "Ordinary Diploma in Communication System Technology",
+           "department":4,
+           "level":2
+        }
+    },
+                   {
+        "model": "archives.awards",
+        "pk": 19,
+        "fields": {
+            "name": "Ordinary Diploma in Mechanical Engineering",
+           "department":5,
+           "level":2
+        }
+    },
+                   
+                                {
+        "model": "archives.awards",
+        "pk": 20,
+        "fields": {
+            "name": "Bachelor in Mechanical Engineering",
+           "department":5,
+           "level":1
+        }
+    },
+                   
+                                  {
+        "model": "archives.awards",
+        "pk": 21,
+        "fields": {
+            "name": "Bachelor of Technology in Laboratory Science",
+           "department":6,
+           "level":1
+        }
+    },
+                                  
+     {
+        "model": "archives.awards",
+        "pk": 22,
+        "fields": {
+            "name": "Ordinary Diploma in Science and Laboratory Technology",
+           "department":6,
+           "level":2
+        }
+    },
+      {
+        "model": "archives.awards",
+        "pk": 23,
+        "fields": {
+            "name": "Ordinary Diploma in Food Science and Technology",
+           "department":6,
+           "level":2
+        }
+    },
+       {
+        "model": "archives.awards",
+        "pk": 24,
+        "fields": {
+            "name": "Ordinary Diploma in Biotechnology",
+           "department":6,
+           "level":2
+        }
+    },
    ]
 with open('seeders.json', 'w') as f:
     json.dump(data, f)

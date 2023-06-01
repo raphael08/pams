@@ -856,10 +856,10 @@ def projects(request):
    s = Student.objects.values_list('academic_year',flat=True).distinct()
    s = list(s)
    g = Project_type.objects.all()
-   
+   level = Level.objects.all()
    name = request.POST.get('department')
    g = Project_type.objects.filter(department__name = name)
-   return render(request,'html/dist/projects.html',{'side':'projects','d':d,'f':f,'s':s,'g':g,'l':l})
+   return render(request,'html/dist/projects.html',{'side':'projects','d':d,'f':f,'s':s,'g':g,'l':l,'level':level})
  except:
     messages.error(request,'Something went wrong')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -1059,17 +1059,54 @@ def check_file_similarity(file_path):
 #                     return res
 #     return render(request, 'html/dist/upload.html')
    
-   
+t = 'SPECIFIC OBJECTIVES'
+c = 'content'
+y = 'table of content'
+ab = 'ABSTRACT'
+# pdf2 = PyPDF2.PdfReader(file_path)
+# no = len(pdf2.pages)
+pages = [0]
+def split_merge(input,output,pagex):
+    
+    pdf2 = PyPDF2.PdfReader(input)
+    pdf_w = PyPDF2.PdfWriter()
+    
+    for i in range(1,len(pdf2.pages)):
+        text = pdf2.pages[i].extract_text() 
+        if ab.upper() in text or ab.lower() in text or ab.title() in text:
+            pages.append(i)  
+            break
+    for i in range(1,len(pdf2.pages)):
+        text = pdf2.pages[i].extract_text()
+
+        if (t.upper() in text  or t.title() in text) and not ((c.upper() in text or c.lower() in text or c.title() in text) or (y.upper() in text or y.lower() in text or y.title() in text)):
+        
+            pages.append(i)
+            print(pages)
+    for page in pagex:
+         page = pdf2.pages[page]
+         pdf_w.add_page(page)
+         
+         
+    with open(output,'wb') as output_file:
+        pdf_w.write(output_file)
+        
+        
+
+
+  
 def pdf_upload(request):
     
     
-   try:
+   # try:
     if request.method == 'POST' and request.FILES['pdf']:
         j = Document.objects.filter(project__student_id=request.user.student.id).exists() 
         role = Group.objects.get(name='Student')  
         title = request.POST.get('title')
         type = request.POST.get('type')
         file = request.FILES.get('pdf').read()
+        f = request.FILES.get('pdf')
+       
         pdf = request.FILES['pdf']
         path = 'media/projects/' + str(pdf)
         if path.endswith('.pdf'):
@@ -1103,9 +1140,18 @@ def pdf_upload(request):
             p.groups.add(role)
             images[0].save(paths) 
             profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
-                
-            pdf_file = Document(cover=names,file=pdf,project_id = project.id,submitted=True)
+            input = pdf
+            output = f'media/preview/{str(request.user.student.regNo)}.pdf'
+            out = f'preview/{str(request.user.student.regNo)}.pdf'
+            # print(output)
+            pagez = pages
+            #print(pagez)
+            split_merge(input,output,pagez)
+           
+          
+            pdf_file = Document(cover=names,file=pdf,project_id = project.id, preview=out, submitted=True)
             pdf_file.save()
+        
             Progress.objects.create(document_id=pdf_file.id)
             messages.success(request, 'Your PDF was uploaded successfully!')
             #os.remove(path)
@@ -1146,7 +1192,16 @@ def pdf_upload(request):
                         images[0].save(paths) 
                         profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
                         #os.remove(f'{profile}\\{str(pdf)}')           
-                        pdf_file = Document(cover=name,file=pdf,project_id = project.id,submitted=True)
+                        input = pdf
+                        output = f'media/preview/{str(request.user.student.regNo)}.pdf'
+                        out = f'preview/{str(request.user.student.regNo)}.pdf'
+                        # print(output)
+                        pagez = pages
+                        #print(pagez)
+                        split_merge(input,output,pagez)
+                        
+          
+                        pdf_file = Document(cover=name,file=pdf,project_id = project.id, preview=out, submitted=True)
                         pdf_file.save()
                         
                         Progress.objects.create(document_id=pdf_file.id)
@@ -1178,10 +1233,10 @@ def pdf_upload(request):
         
     role = Group.objects.get(name='Student')    
     return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':p,'sub':sub,'j':j})
-   except:
+   # except:
      
-    messages.error(request,'Something went wrong')
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+   #  messages.error(request,'Something went wrong')
+   #  return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
  
  
 def preview_pdf(request,pk):
@@ -1441,3 +1496,46 @@ def save_pdf(request):
 
 
 
+
+from django.http import JsonResponse
+
+def get_level(request):
+    level = request.GET.get('level')
+    department=  request.GET.get('dept')
+    if department !="":
+     
+     districts = Awards.objects.filter(department__name=level).values('id', 'name')
+    elif level != "":
+       districts = Awards.objects.filter(department__name=level,level_id=level).values('id', 'name')
+      
+    return JsonResponse({'districts': list(districts)})
+
+
+def get_courses(request):
+    department = request.GET.get('department')
+    department = department.upper()
+    
+    level = request.GET.get('level')
+   
+    dept = Department.objects.get(name=department)
+    
+    
+    # Retrieve the courses based on department and level
+    if level=="":
+     pass
+    else:
+     lev = Level.objects.get(name=level)
+     courses = Awards.objects.filter(department_id=dept.id,level_id=lev.id).values('id', 'name')
+     typ = Project_type.objects.filter(department_id=dept.id).values('id', 'name')
+    # Serialize the courses as JSON
+    courses = list(courses)
+    types = list(typ)
+    
+    print(types)       
+    #print(types)
+   #   print(courses)
+    # Return the response
+    return JsonResponse({'courses': courses,'types':types})
+ 
+#def get_level(request):
+   

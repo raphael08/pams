@@ -151,6 +151,7 @@
             <p>{{d.document.project.project_type.name | title}}</p>
             <p>{{d.document.project.student.level.name | title}}</p>
             <p>{{d.document.project.student.department.name | title}}</p>
+            <p style="font-size: 8px;">{{d.document.project.student.course | title}}</p>
             <p>{{d.document.project.student.academic_year}}</p>
             <form id="myForm">
               {% csrf_token %}
@@ -158,7 +159,7 @@
             {% comment %} <div id="like-button"> {% endcomment %}
               {% comment %} <i class="fa fa-heart like-button" onclick="submitForm()"></i> {% endcomment %}
             {% comment %} </div> {% endcomment %}
-            {% if d.prog > 75%}
+            {% if d.prog >= 75%}
             <p style="color:green">{{d.prog}}%</p>
             {% else %}
             <p style="color:red">{{d.prog}}%</p>
@@ -304,7 +305,7 @@ $(function(){
         {% comment %} <div class="font-strong">Deparment</div> {% endcomment %}
         <div class="check-list m-b-20 m-t-10">
             <form id="myForm">
-                <label for="dropdown1">Deparment:</label>
+                <label for="dropdown1">Department:</label>
                 <select id="dropdown1" class="form-control">
                   <option value="">All</option>
                   {% for i in f %}
@@ -315,6 +316,25 @@ $(function(){
                 </select>
               </form>
                 <br>
+                <label for="dropdown3">Level</label>
+                <select id="level-dropdown" class="form-control" disabled>
+                  <option value="">Select Level</option>
+                  {% for level in level %}
+                  <option value="{{level.name}}">{{level.name | title}}</option>
+                  {% endfor %}
+              </select>
+<br>
+<label for="dropdown4">Course</label>
+<select id="course-dropdown" class="form-control">
+  <!-- dynamically populate the district options -->
+</select>
+<br>
+
+<label for="dropdown5">Type</label>
+<select id="type-dropdown" class="form-control">
+  <!-- dynamically populate the district options -->
+</select>
+<br>
                 <label for="dropdown2">Academic Year</label>
                 <select id="dropdown2" class="form-control">
                   <option value="">All</option>
@@ -324,6 +344,68 @@ $(function(){
                   {% comment %} <option value="option5">Option 5</option>
                   <option value="option6">Option 6</option> {% endcomment %}
                 </select>
+               
+                <script>
+                  // Assuming you have jQuery available
+                  $(document).ready(function() {
+                    // Get references to the department and level dropdowns
+                    const departmentDropdown = $('#dropdown1');
+                    const levelDropdown = $('#level-dropdown');
+                    //const typeDropdown =  $('#type-dropdown')
+                    // Add an event listener to the department and level dropdowns
+                    departmentDropdown.add(levelDropdown).change(function() {
+                      var department = departmentDropdown.val();
+                      var level = levelDropdown.val();
+                      var courseDropdown = $('#course-dropdown');
+                      var typeDropdown = $('#type-dropdown');
+                      //var type = typeDropdown.val();
+                      // Check if the department dropdown value is empty
+                      if (department === "") {
+                        // Disable the level dropdown
+                        levelDropdown.prop('disabled', true);
+                        levelDropdown.val('');
+                        courseDropdown.val('');
+                        typeDropdown.val('')
+                        
+                      } else {
+                        // Enable the level dropdown
+                        levelDropdown.prop('disabled', false);
+                      }
+                      
+
+                      // Make an AJAX request to the server
+                      $.ajax({
+                        url: '/get_courses/',  // URL to your Django view
+                        type: 'GET',
+                        data: {
+                          department: department,
+                          level: level
+                        },
+                        success: function(response) {
+                          // Handle the AJAX response and populate the "Course" dropdown
+                          var courseDropdown = $('#course-dropdown');
+                          var typeDropdown =  $('#type-dropdown')
+                          courseDropdown.empty();
+                          typeDropdown.empty();
+                          
+                          // Populate the dropdown with received options
+                          $.each(response.courses, function(index, course) {
+                            courseDropdown.append($('<option></option>').val(course.name).text(course.name));
+                          });
+                          $.each(response.types, function(index, type) {
+                            typeDropdown.append($('<option></option>').val(type.name).text(type.name));
+                          });
+                        }
+                      });
+                    });
+                    
+                  });
+                </script>
+                
+              
+
+              
+                
                 {% comment %} <br>
                 <label for="dropdown3">Project Type</label>
                 <select id="dropdown3" class="form-control">
@@ -336,8 +418,8 @@ $(function(){
                  
                 </select> {% endcomment %}
                 <br>
-                <label for="textinput">Text Input:</label>
-                <input type="text" id="myInputb" class="form-control">
+                {% comment %} <label for="textinput">Text Input:</label>
+                <input type="text" id="myInputb" class="form-control"> {% endcomment %}
                 
         </div>
         
@@ -382,12 +464,17 @@ $(function(){
 
   <script>
     function filterCardz() {
-        var input, filter, cards, cardInfo, i, txtValue, dropdown1, dropdown2,dropdown3;
+        var input, filter, cards, cardInfo, i, txtValue, dropdown1, dropdown2,dropdown3,dropdown4,dropdown5;
         input = document.getElementById("myInputs");
         filter = input.value.toUpperCase();
+        
         cards = document.getElementsByClassName("cards");
         dropdown1 = document.getElementById("dropdown1").value.toUpperCase();
         dropdown2 = document.getElementById("dropdown2").value.toUpperCase();
+        dropdown3 = document.getElementById("level-dropdown").value.toUpperCase();
+        dropdown4 = document.getElementById("course-dropdown").value.toUpperCase();
+        dropdown5 = document.getElementById("type-dropdown").value.toUpperCase();
+        
         //dropdown3 = document.getElementById("dropdown3").value.toUpperCase();
         // Filter cards based on search input
         for (i = 0; i < cards.length; i++) {
@@ -396,8 +483,10 @@ $(function(){
           
           if ((txtValue.toUpperCase().indexOf(filter) > -1) &&
           (dropdown1 === "" || txtValue.toUpperCase().includes(dropdown1)) &&
+          (dropdown3 === "" || txtValue.toUpperCase().includes(dropdown3)) &&
+          (dropdown4 === "" || txtValue.toUpperCase().includes(dropdown4)) &&
+          (dropdown5 === "" || txtValue.toUpperCase().includes(dropdown5)) &&
           (dropdown2 === "" || txtValue.toUpperCase().includes(dropdown2))
-          //(dropdown3 === "" || txtValue.toUpperCase().includes(dropdown3))
           ) {
             cards[i].style.display = "";
           } else {
@@ -425,8 +514,10 @@ $(function(){
       
       document.getElementById("myInputs").addEventListener("input", filterCardz);
         document.getElementById("dropdown1").addEventListener("change", filterCardz);
-        document.getElementById("dropdown2").addEventListener("change", filterCardsz);
-        {% comment %} document.getElementById("dropdown3").addEventListener("change", filterCards); {% endcomment %}
+        document.getElementById("dropdown2").addEventListener("change", filterCardz);
+        document.getElementById("level-dropdown").addEventListener("change", filterCardz);
+        document.getElementById("course-dropdown").addEventListener("change", filterCardz);
+        document.getElementById("type-dropdown").addEventListener("change", filterCardz);
 
       
       function showCards(page) {
@@ -479,12 +570,16 @@ $(function(){
 
 <script>
     function filterCards() {
-        var input, filter, cards, cardInfo, i, txtValue, dropdown1, dropdown2,dropdown3;
+        var input, filter, cards, cardInfo, i, txtValue, dropdown1, dropdown2,dropdown3,dropdown4,dropdown5;
         input = document.getElementById("myInputb");
         filter = input.value.toUpperCase();
         cards = document.getElementsByClassName("cards");
         dropdown1 = document.getElementById("dropdown1").value.toUpperCase();
         dropdown2 = document.getElementById("dropdown2").value.toUpperCase();
+        dropdown3 = document.getElementById("level-dropdown").value.toUpperCase();
+        dropdown4 = document.getElementById("course-dropdown").value.toUpperCase();
+        dropdown5 = document.getElementById("type-dropdown").value.toUpperCase();
+       
         //dropdown3 = document.getElementById("dropdown3").value.toUpperCase();
         // Filter cards based on search input
         for (i = 0; i < cards.length; i++) {
@@ -493,6 +588,9 @@ $(function(){
           
           if ((txtValue.toUpperCase().indexOf(filter) > -1) &&
           (dropdown1 === "" || txtValue.toUpperCase().includes(dropdown1)) &&
+          (dropdown3 === "" || txtValue.toUpperCase().includes(dropdown3)) &&
+          (dropdown4 === "" || txtValue.toUpperCase().includes(dropdown4)) &&
+          (dropdown5 === "" || txtValue.toUpperCase().includes(dropdown5)) &&
           (dropdown2 === "" || txtValue.toUpperCase().includes(dropdown2))
           //(dropdown3 === "" || txtValue.toUpperCase().includes(dropdown3))
           ) {
@@ -523,6 +621,9 @@ $(function(){
       document.getElementById("myInputb").addEventListener("input", filterCards);
         document.getElementById("dropdown1").addEventListener("change", filterCards);
         document.getElementById("dropdown2").addEventListener("change", filterCards);
+        document.getElementById("level-dropdown").addEventListener("change", filterCards);
+        document.getElementById("course-dropdown").addEventListener("change", filterCards);
+        document.getElementById("type-dropdown").addEventListener("change", filterCards);
         {% comment %} document.getElementById("dropdown3").addEventListener("change", filterCards); {% endcomment %}
 
       
