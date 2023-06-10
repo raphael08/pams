@@ -52,7 +52,7 @@ def check_connection():
            
 
 def login(request):
- try:
+#  try:
    user = User()
    students = Student()
    staffs = Staff()
@@ -215,9 +215,9 @@ def login(request):
    else:
       messages.error(request,'No internet Connection')
       return render(request,'html/dist/login.html')    
- except:
-    messages.error(request,'Something went wrong')
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+#  except:
+#     messages.error(request,'Something went wrong')
+#     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 
@@ -850,8 +850,8 @@ def upload_student(request):
 @login_required(login_url='/login')
 def projects(request):
  try:
-   d = Progress.objects.filter(status=True)
-   l = Progress.objects.filter(status=True).count()
+   d = Document.objects.all()
+   l = Document.objects.all().count()
    f = Department.objects.all()
    s = Student.objects.values_list('academic_year',flat=True).distinct()
    s = list(s)
@@ -1285,27 +1285,55 @@ def submissionTime(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))      
     
 def editSubmittionTime(request,pk):
-      try:
+      # try:
        if request.method == 'POST':
           date = request.POST.get('date')
-          print(date)
+          
           time = request.POST.get('time')
-          print(time)
+          
           #pytz.timezone('Africa/Dar_es_Salaam') 
           y,m,d = date.split("-")
           h,mm = time.split(":")
+          role = Group.objects.get(name='Final_Year')
+          print("----------------------------")
+          print(role)
+          print(role.id)
           date = datetime.datetime(int(y),int(m),int(d),int(h),int(mm))
-          print(date)
+          
+          dates =  datetime.datetime.now().year
+          first = str(dates-1)
+          dates = str(dates)
+
+          dates = f'{first}/{dates}'
+          
           if date < datetime.datetime.now():
                messages.error(request, 'date should be greater than today') 
                return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
           else:
-            Submission.objects.filter(id=pk).update(when=date)    
+            Submission.objects.filter(id=pk).update(when=date)
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$") 
+                
+            for s in (Student.objects.all()):
+               print(request.user.staff.level.id)  
+               print(s.level_id) 
+               print(s.academic_year) 
+               print(dates)
+               print(s.NTA_Level) 
+               if s.NTA_Level == 8 and s.level_id==request.user.staff.level.id and s.academic_year==dates:
+                  for i in Group.objects.all():
+                              print(i.id)
+                              s.user.groups.remove(i.id)   
+                  s.user.groups.add(role.id) 
+               elif s.NTA_Level == 6 and s.level.id==request.user.staff.level.id and s.academic_year==date:
+                     for i in Group.objects.all():
+                              s.user.groups.remove(i.id)
+                     s.user.groups.add(role) 
+                     
             messages.success(request, 'data edited successful') 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-      except: 
-         messages.error(request, 'data edited successful') 
-         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+      # except: 
+      #    messages.error(request, 'Something went wrong') 
+      #    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 def deletesub(request,pk):
@@ -1319,14 +1347,16 @@ def deletesub(request,pk):
       date = str(date)
 
       date = f'{first}/{date}'
+      
+      role = Group.objects.get(name='Final_Year')
       for s in (Student.objects.all()):
        
-       if s.NTA_Level == 8 and s.level.id==request.user.staff.level.id and s.academic_year==date:
+       if s.NTA_Level == 8 and s.level_id==request.user.staff.level.id and s.academic_year==date:
             for i in Group.objects.all():
                         #print(i.id)
                         s.user.groups.remove(i.id)   
-            s.user.groups.add(role) 
-       elif s.NTA_Level == 6 and s.level.id==request.user.staff.level.id and s.academic_year==date:
+            s.user.groups.add(role.id) 
+       elif s.NTA_Level == 6 and s.level_id==request.user.staff.level.id and s.academic_year==date:
                for i in Group.objects.all():
                         s.user.groups.remove(i.id)
                s.user.groups.add(role)  
@@ -1335,32 +1365,39 @@ def deletesub(request,pk):
       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
 
     
-def deadline(request):
+def deadlines(request):
  try:
   
   role = Group.objects.get(name='Student') 
+
   sb = Submission.objects.get(level_id=request.user.student.level.id)
-  #print(sb.level_id)
+ 
+#   print(sb.level_id)
   date =  datetime.datetime.now().year
   first = str(date-1)
   date = str(date)
 
   date = f'{first}/{date}'
   for s in (Student.objects.all()):
-      
-      if s.NTA_Level == 8 and s.level.id==sb.level_id and s.academic_year==date:
+      print(s.level.id)
+      print(sb.level_id)
+      print(s.academic_year)
+      if s.NTA_Level == 8 and s.level_id==sb.level_id and s.academic_year==date:
          for i in Group.objects.all():
-                     #print(i.id)
+                     print(i.id)
                      s.user.groups.remove(i.id)   
-         s.user.groups.add(role) 
+         s.user.groups.add(role.id) 
+         messages.error(request, 'TIMEOUT') 
+         #return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+         return render(request,'html/dist/deadline.html')
       elif s.NTA_Level == 6 and s.level.id==sb.level_id and s.academic_year==date:
             for i in Group.objects.all():
                      s.user.groups.remove(i.id)
             s.user.groups.add(role) 
-      
-      messages.error(request, 'TIMEOUT') 
+            messages.error(request, 'TIMEOUT') 
       #return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
-      return redirect('/deadlines') 
+            return render(request,'html/dist/deadline.html')
+      
  except:
    messages.error(request, 'something went wrong') 
    return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
@@ -1422,10 +1459,10 @@ def deletepdf(request,pk):
    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-def deadlines(request):
+# def deadlines(request):
    
    
-   return render(request,'html/dist/deadline.html')
+#    return render(request,'html/dist/deadline.html')
 
 
 

@@ -64,7 +64,7 @@
 
 
 
-                    <div class="ibox">
+                    {% comment %} <div class="ibox">
                         <div class="ibox-head">
                             
                             <div class="ibox-title">Student Assessment</div>
@@ -97,7 +97,7 @@
                                       <td>{{s.document.project.student.user.first_name}}</td>
                                       <td>{{s.document.project.student.course | title}}</td>
                                       <td>{{s.document.project.title | title }}</td>
-                                      <td><a href="preview_pdf/{{s.id}}" ><i class="fa fa-file  font-14"></a></td>
+                                      <td><a href="preview_pdf/{{s.document.id}}" ><i class="fa fa-file  font-14"></a></td>
                                       {% if s.prog < 75 %}
                                       <td style="color:red">{{s.prog}}%</td>
                                       {% else %}
@@ -123,7 +123,7 @@
                               </div>
                               
                         </div>
-                    </div>
+                    </div> {% endcomment %}
 
 
 
