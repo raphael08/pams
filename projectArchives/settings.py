@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
-import django_heroku
+import django_heroku,dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.python
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -104,17 +104,17 @@ WSGI_APPLICATION = "projectArchives.wsgi.application"
 #     }
 # }
 
-# ##################HEROKU#########################
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'd6khn9imgr5rn6',
-#         'USER': 'postgres',
-#         'PASSWORD': 'RDlJOqOuli0bScgw7v8P',
-#         'HOST': 'ec2-3-208-74-199.compute-1.amazonaws.com',
-#         'PORT': '6223',
-#     }
-# }
+##################HEROKU#########################
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'd6khn9imgr5rn6',
+        'USER': 'postgres',
+        'PASSWORD': 'RDlJOqOuli0bScgw7v8P',
+        'HOST': 'ec2-3-208-74-199.compute-1.amazonaws.com',
+        'PORT': '6223',
+    }
+}
 
 ########### RAILWAY ##################
 import dj_database_url
@@ -154,10 +154,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_DIRS = [
-    os.path.join(BASE_DIR,'static')
-]
-STATIC_ROOT = os.path.join(BASE_DIR,'static')
+# STATIC_DIRS = [
+#     os.path.join(BASE_DIR,'static')
+# ]
+# STATIC_ROOT = os.path.join(BASE_DIR,'static')
 # STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
