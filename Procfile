@@ -1,1 +1,1 @@
-web gunicorn fridgeProject.wsgi:application --log-file -
+web gunicorn projectArchives.wsgi:application --log-file -
