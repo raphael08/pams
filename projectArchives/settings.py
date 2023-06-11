@@ -12,11 +12,11 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
-
+import django_heroku
 # Build paths inside the project like this: BASE_DIR / 'subdir'.python
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATABASES_URL = 'postgresql://postgres:lTim7TkFJR4ZCWqsxvdt@containers-us-west-204.railway.app:7948/railway'
+DATABASES_URL = 'postgres://cilxlxbnztezmf:b3aa5630fdf58fb9bd78f0faef457d21d9afbfe9c4b920a054d74f5c9be38e8c@ec2-3-208-74-199.compute-1.amazonaws.com:5432/d6khn9imgr5rn6'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -51,7 +51,8 @@ MIDDLEWARE = [
      'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
-    
+     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -92,34 +93,34 @@ WSGI_APPLICATION = "projectArchives.wsgi.application"
 
 
 ###############LOCAL #####################
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'archives',
-        'USER': 'postgres',
-        'PASSWORD': 'raphael',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
-}
-
-##################RAILWAY#########################
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'railway',
+#         'NAME': 'archives',
+#         'USER': 'postgres',
+#         'PASSWORD': 'raphael',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
+
+# ##################HEROKU#########################
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'd6khn9imgr5rn6',
 #         'USER': 'postgres',
 #         'PASSWORD': 'RDlJOqOuli0bScgw7v8P',
-#         'HOST': 'containers-us-west-196.railway.app',
+#         'HOST': 'ec2-3-208-74-199.compute-1.amazonaws.com',
 #         'PORT': '6223',
 #     }
 # }
 
 ########### RAILWAY ##################
-# import dj_database_url
-# DATABASES = {
-#      'default': dj_database_url.parse(DATABASES_URL)
-#          }
+import dj_database_url
+DATABASES = {
+     'default': dj_database_url.parse(DATABASES_URL)
+         }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -187,3 +188,9 @@ CORS_ALLOW_CREDENTIALS = True
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
 
 # AUTH_USER_MODEL = 'archives.User'
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+django_heroku.settings(locals())
