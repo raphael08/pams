@@ -7,7 +7,7 @@
     <div class="ibox">
         <div class="ibox-head">
             
-            <div class="ibox-title">Data Table</div>
+            <div class="ibox-title">Project TYpe Available</div>
             {% if perms.archives.add_project_type and perms.archives.delete_project_type%}
             <button class="btn btn-primary" data-toggle="modal"
             data-target="#modal-lg1"><i class="fa fa-plus"></i> New </button>
@@ -23,7 +23,7 @@
                     <tr>
                       <th>Department</th>
                       <th>Name</th>
-                      {% if perms.archives.edit_project_type and perms.archives.delete_project_type%}
+                      {% if perms.archives.change_project_type and perms.archives.delete_project_type%}
                       <th>Action</th>
                       {% endif %}
                     </tr>
@@ -36,9 +36,9 @@
                         {{t.department__name}}</td>
                       <td>{{t.name}}</td>
                       
-                      {% if perms.archives.edit_project_type and perms.archives.delete_project_type%}
+                      {% if perms.archives.change_project_type and perms.archives.delete_project_type%}
                       <td>
-                        {% if perms.archives.edit_project_type %}
+                        {% if perms.archives.change_project_type %}
                         <button class="btn btn-default" data-toggle="modal"
                         data-target="#modal-lg16{{t.id}}"><i class="fa fa-pencil font-14"></i></button>
                         {% endif %}

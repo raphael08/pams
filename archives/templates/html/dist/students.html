@@ -317,7 +317,7 @@
                             <div class="col col-md-6">
                                 <label>NAT Level</label>
                                 <input type="number" min="4" max="8" name="NTA_Level" class="form-control"
-                                value="{{s.NTA_Level}}">
+                                value="{{s.NTA_Level}}" required>
                             </div>
                             <div class="col col-md-6">
                                 <label>Course</label>
@@ -480,22 +480,22 @@
                             <div class="col col-md-6">
                                 <label>NAT Level</label>
                                 <input type="number" min="4" max="8" name="NTA_Level" class="form-control"
-                                    placeholder="NTA Level">
+                                    placeholder="NTA Level" required>
                             </div>
                             <div class="col col-md-6">
                                 <label>Course</label>
                                 <input type="text" name="course" pattern="[A-Za-z]{1,}" title="text only required" class="form-control"
-                                    placeholder="course">
+                                    placeholder="course" required>
                             </div>
                             <div class="col col-md-6">
                                 <label>Academic Year</label>
                                 <input type="text" name="academic_year" pattern="\d{4}\/\d{4}" title="eg 2022/2023" class="form-control"
-                                    placeholder="academic year">
+                                    placeholder="academic year" required>
                             </div>
                             <div class="col col-md-6">
                                 <label>Department</label>
     
-                            <select class="form-control" name="department">
+                            <select class="form-control" name="department" required>
                                 
                                 <option disabled selected value>select department</option>
                              

@@ -7,8 +7,8 @@
     <div class="ibox">
         <div class="ibox-head">
             
-            <div class="ibox-title">Data Table</div>
-            <a href="/pdf_upload"><button class="btn btn-primary"><i class="fa fa-plus"></i> New </button></a>
+            <div class="ibox-title">Projects</div>
+            {% comment %} <a href="/pdf_upload"><button class="btn btn-primary"><i class="fa fa-plus"></i> New </button></a> {% endcomment %}
         </div>
         <div class="ibox-body">
             <div class="table-wrapper" role="group" aria-labelledby="caption">
@@ -23,7 +23,7 @@
                       <th>Deparment</th>
                       {% endif %}
                       <th>File</th>
-                      {% if perms.archives.edit_project_type and perms.archives.delete_project_type%}
+                      {% if perms.archives.change_project_type and perms.archives.delete_project_type %}
                       <th>Action</th>
                       {% endif %}
                     </tr>
@@ -35,14 +35,16 @@
                       <td>
                         {{t.project.student.user.first_name}}</td>
                       <td>{{t.project.title| title}}</td>
+                      {% if request.user.is_superuser %}
                       <td>{{t.project.department.name| title}}</td>
+                      {% endif %}
                       <td><a href="preview_pdf/{{t.id}}" ><i class="fa fa-file  font-14"></a></td>
-                      {% if perms.archives.edit_project_type and perms.archives.delete_project_type%}
+                      {% if perms.archives.change_project_type and perms.archives.delete_project_type%}
                       <td>
-                        {% if perms.archives.edit_project_type %}
+                        {% comment %} {% if perms.archives.change_project %}
                         <button class="btn btn-default" data-toggle="modal"
                         data-target="#modal-lg16{{t.project_id}}"><i class="fa fa-pencil font-14"></i></button>
-                        {% endif %}
+                        {% endif %} {% endcomment %}
                         {% if perms.archives.delete_project_type%}
                         <button class="btn btn-default"data-toggle="modal" data-target="#modal-dangerv{{t.id}}"><i class="fa fa-trash font-14"></i></button>
                         {% endif %}

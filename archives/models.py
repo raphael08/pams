@@ -71,7 +71,7 @@ class Staff(models.Model):
     department = models.ForeignKey(Department,on_delete=models.CASCADE)
     mobile = models.TextField(max_length=14, null=True,blank=True)
     photo = models.ImageField(upload_to='profile_pic/staff',default='default.jpg', null=True, blank=True)
-    level = models.OneToOneField(Level,null=True,blank=True,on_delete=models.CASCADE)
+    level = models.ForeignKey(Level,null=True,blank=True,on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.first_name
@@ -136,9 +136,10 @@ class Progress(models.Model):
         
 class Submission(models.Model):
     when = models.DateTimeField(auto_now=False,auto_now_add=False)
-    level = models.OneToOneField(Level,on_delete=models.CASCADE, null=True,blank=True)
+    level = models.ForeignKey(Level,on_delete=models.CASCADE, null=True,blank=True)
     academic_year =  models.CharField(max_length=50,null=True,blank=True,default=date)
     status = models.BooleanField(default=True)
+    department = models.ForeignKey(Department,on_delete=models.CASCADE, null=True,blank=True)
     class Meta:
         db_table = "submission"
 

@@ -255,8 +255,8 @@ def assessment(request):
 
     date = f'{first}/{date}'
     finalB =  Progress.objects.filter(document__project__student__level__id=request.user.staff.level.id).filter(document__project__student__academic_year=date) 
-    sub = Submission.objects.filter(level_id=request.user.staff.level.id).filter(academic_year=date) 
-    ex = Submission.objects.filter(level_id=request.user.staff.level.id).exists()
+    sub = Submission.objects.filter(level_id=request.user.staff.level.id).filter(academic_year=date).filter(department_id=request.user.staff.department.id)
+    ex = Submission.objects.filter(level_id=request.user.staff.level.id,department_id=request.user.staff.department.id).exists()
    
 
   return render(request,'html/dist/assessment.html',{'side':'assessment','b':finalB,'sub':sub,'ex':ex})
@@ -310,31 +310,38 @@ def addstudent(request):
       password = make_password("@DIT123")
       users = User.objects.filter(username=email).exists()
       user = Student.objects.filter(regNo=regNo).exists()
+      
+      
+      group = Group.objects.get(name='Student')
       if users and user:
          messages.error(request,'Student exists')
          return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
       if NTA_Level==8:
        u = User.objects.create(username=email,email=email,password=password,first_name=name)
-       
+       u.groups.add(group)
        Student.objects.create(user=u,regNo=regNo,mobile=mobile,academic_year=academic_year,level_id=1,NTA_Level=NTA_Level,course=course,department_id=departments,gender=gender)
        messages.success(request,'Student created successful')
        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
       elif NTA_Level==6:
        u = User.objects.create(username=email,email=email,password=password,first_name=name)
+       u.groups.add(group)
        Student.objects.create(user=u,regNo=regNo,mobile=mobile,academic_year=academic_year,level_id=2,NTA_Level=NTA_Level,course=course,department_id=departments,gender=gender)
        messages.success(request,'Student created successful')
        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
       elif NTA_Level>6:
        u = User.objects.create(username=email,email=email,password=password,first_name=name)
+       u.groups.add(group)
        Student.objects.create(user=u,regNo=regNo,mobile=mobile,academic_year=academic_year,level_id=1,NTA_Level=NTA_Level,course=course,department_id=departments,gender=gender)
        messages.success(request,'Student created successful')
        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
       elif NTA_Level <=6:
        u = User.objects.create(username=email,email=email,password=password,first_name=name)
+       u.groups.add(group)
        Student.objects.create(user=u,regNo=regNo,mobile=mobile,academic_year=academic_year,level_id=2,NTA_Level=NTA_Level,course=course,department_id=departments,gender=gender)
        messages.success(request,'Student created successful')
        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    
- except:
+ except Exception as e:
+    print(e)
     messages.error(request,'Something went wrong')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -354,7 +361,7 @@ def addstaff(request):
       gender = request.POST.get('gender')
       
       group_id = request.POST.get('role')
-      print(group_id)
+      
       group = Group.objects.get(id=group_id)
       password = make_password("@DIT123")
       users = User.objects.filter(username=email).exists()
@@ -372,7 +379,9 @@ def addstaff(request):
    
       messages.success(request,'Staff created successful')
       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
- except:
+ except Exception as e:
+    print("******************")
+    print(e)
     messages.error(request,'Something went wrong')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
  
@@ -1104,7 +1113,7 @@ def split_merge(input,output,pagex):
 def pdf_upload(request):
     
     
-   # try:
+   try:
     zoom_x = 2.0  # horizontal zoom
     zoom_y = 2.0  # vertical zoom
     mat = fitz.Matrix(zoom_x, zoom_y)
@@ -1241,17 +1250,17 @@ def pdf_upload(request):
             p  = Project_type.objects.filter(department_id=request.user.staff.department.id)
             sub = Submission.objects.filter(level=request.user.staff.level.id) 
     else:
-       sub = Submission.objects.filter(level_id=request.user.student.level.id)
+       sub = Submission.objects.filter(level_id=request.user.student.level.id,department_id=request.user.student.department.id)
        
        p  = Project_type.objects.filter(department_id=request.user.student.department.id)
        j = Document.objects.filter(project__student_id=request.user.student.id).exists() 
         
     role = Group.objects.get(name='Student')    
     return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':p,'sub':sub,'j':j})
-   # except:
+   except:
      
-   #  messages.error(request,'Something went wrong')
-   #  return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
  
  
 def preview_pdf(request,pk):
@@ -1274,21 +1283,28 @@ def submissionTime(request):
           y,m,d = date.split("-")
           h,mm = time.split(":")
           date = datetime.datetime(int(y),int(m),int(d),int(h),int(mm))
+         
+          
+          dates =  datetime.datetime.now().year
+          first = str(dates-1)
+          dates = str(dates)
+
+          dates = f'{first}/{dates}'
          #  tz = pytz.timezone('Africa/Dar_es_Salaam')
          #  date = tz.localize(date)
           
           if request.user.staff.level.id == '':
             messages.error(request, 'Data') 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))    
-          t = Submission.objects.create(when=date,level_id=request.user.staff.level.id)
+          t = Submission.objects.create(when=date,level_id=request.user.staff.level.id,department_id=request.user.staff.department.id,academic_year=dates)
           if t:
-            for s in (Student.objects.filter(level_id =request.user.staff.level.id) and Student.objects.filter(department_id =request.user.staff.department.id)):
+            for s in (Student.objects.filter(level_id =request.user.staff.level.id,department_id =request.user.staff.department.id)):
                
-               if s.NTA_Level == 8:
+               if s.NTA_Level == 8 and s.level_id==request.user.staff.level.id and s.academic_year==dates:
                      for i in Group.objects.all():
                                  s.user.groups.remove(i.id)   
                      s.user.groups.add(role8) 
-               elif s.NTA_Level == 6:
+               elif  s.NTA_Level == 6 and s.level_id==request.user.staff.level.id and s.academic_year==dates:
                         for i in Group.objects.all():
                                  s.user.groups.remove(i.id)
                         s.user.groups.add(role8)  
@@ -1310,9 +1326,7 @@ def editSubmittionTime(request,pk):
           y,m,d = date.split("-")
           h,mm = time.split(":")
           role = Group.objects.get(name='Final_Year')
-          print("----------------------------")
-          print(role)
-          print(role.id)
+         
           date = datetime.datetime(int(y),int(m),int(d),int(h),int(mm))
           
           dates =  datetime.datetime.now().year
@@ -1326,14 +1340,10 @@ def editSubmittionTime(request,pk):
                return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
           else:
             Submission.objects.filter(id=pk).update(when=date)
-            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$") 
+             
                 
-            for s in (Student.objects.all()):
-               print(request.user.staff.level.id)  
-               print(s.level_id) 
-               print(s.academic_year) 
-               print(dates)
-               print(s.NTA_Level) 
+            for s in (Student.objects.filter(level_id =request.user.staff.level.id,department_id =request.user.staff.department.id)):
+             
                if s.NTA_Level == 8 and s.level_id==request.user.staff.level.id and s.academic_year==dates:
                   for i in Group.objects.all():
                               print(i.id)
@@ -1363,8 +1373,8 @@ def deletesub(request,pk):
 
       date = f'{first}/{date}'
       
-      role = Group.objects.get(name='Final_Year')
-      for s in (Student.objects.all()):
+      
+      for s in (Student.objects.filter(department_id=request.user.staff.department.id)):
        
        if s.NTA_Level == 8 and s.level_id==request.user.staff.level.id and s.academic_year==date:
             for i in Group.objects.all():
@@ -1386,6 +1396,7 @@ def deadlines(request):
   role = Group.objects.get(name='Student') 
 
   sb = Submission.objects.get(level_id=request.user.student.level.id)
+  d = Submission.objects.get(department_id=request.user.student.department.id)
  
 #   print(sb.level_id)
   date =  datetime.datetime.now().year
@@ -1394,10 +1405,8 @@ def deadlines(request):
 
   date = f'{first}/{date}'
   for s in (Student.objects.all()):
-      print(s.level.id)
-      print(sb.level_id)
-      print(s.academic_year)
-      if s.NTA_Level == 8 and s.level_id==sb.level_id and s.academic_year==date:
+   
+      if s.NTA_Level == 8 and s.level_id==sb.level_id and s.academic_year==date and s.department_id==d.department_id:
          for i in Group.objects.all():
                      print(i.id)
                      s.user.groups.remove(i.id)   
@@ -1405,7 +1414,7 @@ def deadlines(request):
          messages.error(request, 'TIMEOUT') 
          #return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
          return render(request,'html/dist/deadline.html')
-      elif s.NTA_Level == 6 and s.level.id==sb.level_id and s.academic_year==date:
+      elif s.NTA_Level == 6 and s.level.id==sb.level_id and s.academic_year==date and s.department_id==d.department_id:
             for i in Group.objects.all():
                      s.user.groups.remove(i.id)
             s.user.groups.add(role) 
