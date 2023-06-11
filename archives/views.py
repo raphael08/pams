@@ -249,7 +249,7 @@ def assessment(request):
    first = str(date-1)
    date = str(date)
    date = f'{first}/{date}'
-   finalB =  Progress.objects.filter(document__project__student__academic_year=date) 
+   finalB =  Progress.objects.all() 
    sub = Submission.objects.all()
   elif request.user.is_staff:
     date =  datetime.datetime.now().year
