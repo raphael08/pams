@@ -172,6 +172,7 @@ canvas, .canvas-container {
 		<button class="btn btn-light btn-sm" onclick="savePDF()"><i class="fa fa-save"></i> Save</button>
 	</div>
 	{% endif %} {% endcomment %}
+	
 	{% if request.user.is_superuser or request.user.staff.level_if != '' %}
 	<div class="tool">
 		<button class="btn btn-info btn-sm" onclick="saveDoc()"><i class="fa fa-download"></i></button>
