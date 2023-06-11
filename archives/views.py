@@ -939,10 +939,7 @@ def check_file_similarity(file_path):
             for page in pdf_reader.pages:
                 file_content += page.extract_text()
                 
-    # extract text content from Word files
-    elif file_path.endswith('.docx'):
-        file_content = docx2txt.process(file_path)
-        
+    # extract text content from Word files    
     # other file types not supported
     else:
         raise ValueError('Unsupported file type')
@@ -1117,7 +1114,7 @@ def split_merge(input,output,pagex):
 def pdf_upload(request):
     
     
-   try:
+   # try:
     zoom_x = 2.0  # horizontal zoom
     zoom_y = 2.0  # vertical zoom
     mat = fitz.Matrix(zoom_x, zoom_y)
@@ -1130,7 +1127,9 @@ def pdf_upload(request):
         f = request.FILES.get('pdf')
        
         pdf = request.FILES['pdf']
-        path = 'media/projects/' + str(pdf)
+        print(pdf)
+        path = f'media/projects/{request.user.student.regNo}.pdf'
+        print(path)
         if path.endswith('.pdf'):
          with open(path, 'wb+') as destination: 
                      destination.write(file)
@@ -1152,7 +1151,7 @@ def pdf_upload(request):
   # iterate through the pages
             
             names = f'{name}'+'.jpg'
-            paths = f'{cover}\\{names}' 
+            paths = f'{cover}\\{request.user.student.regNo}.jpg' 
             
             project.title = title.title()
             project.student_id = request.user.student.id
@@ -1166,7 +1165,7 @@ def pdf_upload(request):
             pix = doc[0].get_pixmap(matrix=mat)  # render page to an image
             pix.save(paths)
             profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
-            input = pdf
+            input = path
             output = f'media/preview/{str(request.user.student.regNo)}.pdf'
             out = f'preview/{str(request.user.student.regNo)}.pdf'
             # print(output)
@@ -1203,7 +1202,7 @@ def pdf_upload(request):
                         name = str(pdf)[-6:-4]
                         name = f'{name}'+'.jpg'
                         doc = fitz.open(path) 
-                        print(pdf)
+                       
                         paths = f'{cover}\\{name}' 
                         project.title = title.title()
                         project.student_id = request.user.student.id
@@ -1220,13 +1219,13 @@ def pdf_upload(request):
                         pix.save(paths)
                         profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
                         #os.remove(f'{profile}\\{str(pdf)}')           
-                        input = pdf
+                        input = path
                         output = f'media/preview/{str(request.user.student.regNo)}.pdf'
                         out = f'preview/{str(request.user.student.regNo)}.pdf'
                         # print(output)
-                        pagez = pages
+                        # pagez = pages
                         #print(pagez)
-                        split_merge(input,output,pagez)
+                        split_merge(input,output,pages)
                         
           
                         pdf_file = Document(cover=name,file=pdf,project_id = project.id, preview=out, submitted=True)
@@ -1261,10 +1260,10 @@ def pdf_upload(request):
         
     role = Group.objects.get(name='Student')    
     return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':p,'sub':sub,'j':j})
-   except:
+   # except:
      
-    messages.error(request,'Something went wrong')
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+   #  messages.error(request,'Something went wrong')
+   #  return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
  
  
 def preview_pdf(request,pk):
