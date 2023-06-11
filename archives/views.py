@@ -245,7 +245,10 @@ def dashboard(request):
 def assessment(request):
 #  try:
   if request.user.is_superuser:
-      
+   date =  datetime.datetime.now().year 
+    first = str(date-1)
+    date = str(date)
+    date = f'{first}/{date}'
    finalB =  Progress.objects.filter(document__project__student__academic_year=date) 
    sub = Submission.objects.all()
   elif request.user.is_staff:
