@@ -251,6 +251,7 @@ def assessment(request):
    date = f'{first}/{date}'
    finalB =  Progress.objects.all() 
    sub = Submission.objects.all()
+   ex = True
   elif request.user.is_staff:
     date =  datetime.datetime.now().year
     first = str(date-1)
