@@ -907,6 +907,12 @@ def upload(request):
 import PyPDF2
 import docx2txt
 from fuzzywuzzy import fuzz
+import fitz
+
+# To get better resolution
+  # zoom factor 2 in each dimension
+
+
 
 def check_file_similarity(file_path):
     
@@ -1099,6 +1105,9 @@ def pdf_upload(request):
     
     
    # try:
+    zoom_x = 2.0  # horizontal zoom
+    zoom_y = 2.0  # vertical zoom
+    mat = fitz.Matrix(zoom_x, zoom_y)
     if request.method == 'POST' and request.FILES['pdf']:
         j = Document.objects.filter(project__student_id=request.user.student.id).exists() 
         role = Group.objects.get(name='Student')  
@@ -1123,12 +1132,15 @@ def pdf_upload(request):
          project = Project()
          similarity_scores = check_file_similarity(path)         
          if len(similarity_scores)==0:
-            images = convert_from_path(path,poppler_path=poppler_path)
+            #images = convert_from_path(path,poppler_path=poppler_path)
             name = str(pdf)[-6:-4]
             pdfs=  str(pdf)[:-4]
+            doc = fitz.open(path)  # open document
+  # iterate through the pages
             
             names = f'{name}'+'.jpg'
             paths = f'{cover}\\{names}' 
+            
             project.title = title.title()
             project.student_id = request.user.student.id
             project.department_id = request.user.student.department.id
@@ -1138,7 +1150,8 @@ def pdf_upload(request):
             for i in Group.objects.all():
                p.groups.remove(i.id)
             p.groups.add(role)
-            images[0].save(paths) 
+            pix = doc[0].get_pixmap(matrix=mat)  # render page to an image
+            pix.save(paths)
             profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
             input = pdf
             output = f'media/preview/{str(request.user.student.regNo)}.pdf'
@@ -1173,10 +1186,10 @@ def pdf_upload(request):
                         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
                         
                      else:
-                        images = convert_from_path(path,poppler_path=poppler_path)
+                        #images = convert_from_path(path,poppler_path=poppler_path)
                         name = str(pdf)[-6:-4]
                         name = f'{name}'+'.jpg'
-                      
+                        doc = fitz.open(path) 
                         print(pdf)
                         paths = f'{cover}\\{name}' 
                         project.title = title.title()
@@ -1189,7 +1202,9 @@ def pdf_upload(request):
                            p.groups.remove(i.id)
                         p.groups.add(role)  
                         # Save pages as images in the pdf
-                        images[0].save(paths) 
+                        #images[0].save(paths) 
+                        pix = doc[0].get_pixmap(matrix=mat)  # render page to an image
+                        pix.save(paths)
                         profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
                         #os.remove(f'{profile}\\{str(pdf)}')           
                         input = pdf
