@@ -1203,7 +1203,7 @@ def pdf_upload(request):
                         name = f'{name}'+'.jpg'
                         doc = fitz.open(path) 
                        
-                        paths = f'{cover}\\{name}' 
+                        paths = f'{cover}\\{request.user.student.regNo}.jpg' 
                         project.title = title.title()
                         project.student_id = request.user.student.id
                         project.department_id = request.user.student.department.id
@@ -1319,7 +1319,7 @@ def submissionTime(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))      
     
 def editSubmittionTime(request,pk):
-      # try:
+      try:
        if request.method == 'POST':
           date = request.POST.get('date')
           
@@ -1359,9 +1359,9 @@ def editSubmittionTime(request,pk):
                      
             messages.success(request, 'data edited successful') 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-      # except: 
-      #    messages.error(request, 'Something went wrong') 
-      #    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+      except: 
+         messages.error(request, 'Something went wrong') 
+         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 def deletesub(request,pk):

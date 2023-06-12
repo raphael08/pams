@@ -91,7 +91,7 @@ class Project_type(models.Model):
         db_table = "project_type"
         
 class Project(models.Model):
-    title = models.CharField(null=True,blank=True,max_length=50)
+    title = models.CharField(null=True,blank=True,max_length=200)
     student = models.OneToOneField(Student, on_delete=models.CASCADE)
     project_type = models.ForeignKey(Project_type,on_delete=models.CASCADE,null=True,blank=True)
     department = models.ForeignKey(Department,on_delete=models.CASCADE,null=True,blank=True)
