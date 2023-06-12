@@ -1085,9 +1085,9 @@ objectives = [ab,t,k]
 pattern = '|'.join(objectives)
 # pdf2 = PyPDF2.PdfReader(file_path)
 # no = len(pdf2.pages)
-pages = [0]
-def split_merge(input,output,pagex):
-    
+
+def split_merge(input,output):
+    pages = [0]
     pdf2 = PyPDF2.PdfReader(input)
     pdf_w = PyPDF2.PdfWriter()
     
@@ -1102,7 +1102,7 @@ def split_merge(input,output,pagex):
         if matches:
             pages.append(i)  
                        
-    for page in pagex:
+    for page in pages:
          page = pdf2.pages[page]
          pdf_w.add_page(page)
          
@@ -1110,11 +1110,13 @@ def split_merge(input,output,pagex):
     with open(output,'wb') as output_file:
         pdf_w.write(output_file)
         
+    return pages  
   
 def pdf_upload(request):
     
     
    # try:
+    
     zoom_x = 2.0  # horizontal zoom
     zoom_y = 2.0  # vertical zoom
     mat = fitz.Matrix(zoom_x, zoom_y)
@@ -1171,9 +1173,9 @@ def pdf_upload(request):
             output = f'media/preview/{str(request.user.student.regNo)}.pdf'
             out = f'preview/{str(request.user.student.regNo)}.pdf'
             # print(output)
-            pagez = pages
+            
             #print(pagez)
-            split_merge(input,output,pagez)
+            split_merge(input,output)
            
           
             pdf_file = Document(cover=pic,file=patt,project_id = project.id, preview=out, submitted=True)
@@ -1227,10 +1229,10 @@ def pdf_upload(request):
                         output = f'media/preview/{str(request.user.student.regNo)}.pdf'
                         out = f'preview/{str(request.user.student.regNo)}.pdf'
                         # print(output)
-                        pagez = pages
+                        # pagez = pages
                         # pagez = pages
                         #print(pagez)
-                        split_merge(input,output,pagez)
+                        split_merge(input,output)
                         
           
                         pdf_file = Document(cover=pic,file=patt,project_id = project.id, preview=out, submitted=True)
