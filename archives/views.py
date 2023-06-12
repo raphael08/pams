@@ -1100,7 +1100,7 @@ def split_merge(input,output,pagex):
         if ((t.upper() in text  or t.title() in text or t.lower() in text) or (u.upper() in text  or u.title() in text or u.lower() in text ) or (k.upper() in text  or k.title() in text or k.lower() in text )) and not ((c.upper() in text or c.lower() in text or c.title() in text) or (y.upper() in text or y.lower() in text or y.title() in text)):
         
             pages.append(i)
-            print(pages)
+            break
     for page in pagex:
          page = pdf2.pages[page]
          pdf_w.add_page(page)
