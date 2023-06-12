@@ -952,8 +952,6 @@ def check_file_similarity(file_path):
                 obj_content = ''
                 for page in pdf_reader.pages:
                     obj_content += page.extract_text()
-        elif obj.file.path.endswith('.docx'):
-            obj_content = docx2txt.process(obj.file.path)
         else:
             continue
         name = (obj.file.name)[9:]
@@ -1130,8 +1128,8 @@ def pdf_upload(request):
        
         pdf = request.FILES['pdf']
         print(pdf)
-        path = f'media/projects/{request.user.student.regNo}.pdf'
-        pat = f'projects/{request.user.student.regNo}.pdf'
+        path = f'media/projects/{str(request.user.student.regNo)}.pdf'
+        print(path)
         if path.endswith('.pdf'):
          with open(path, 'wb+') as destination: 
                      destination.write(file)
@@ -1177,7 +1175,7 @@ def pdf_upload(request):
             split_merge(input,output,pagez)
            
           
-            pdf_file = Document(cover=pic,file=pat,project_id = project.id, preview=out, submitted=True)
+            pdf_file = Document(cover=pic,file=pdf,project_id = project.id, preview=out, submitted=True)
             pdf_file.save()
         
             Progress.objects.create(document_id=pdf_file.id)
@@ -1234,7 +1232,7 @@ def pdf_upload(request):
                         split_merge(input,output,pagez)
                         
           
-                        pdf_file = Document(cover=pic,file=pat,project_id = project.id, preview=out, submitted=True)
+                        pdf_file = Document(cover=pic,file=pdf,project_id = project.id, preview=out, submitted=True)
                         pdf_file.save()
                         
                         Progress.objects.create(document_id=pdf_file.id)
