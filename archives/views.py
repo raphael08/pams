@@ -1131,7 +1131,7 @@ def pdf_upload(request):
         pdf = request.FILES['pdf']
         print(pdf)
         path = f'media/projects/{request.user.student.regNo}.pdf'
-        print(path)
+        pat = f'projects/{request.user.student.regNo}.pdf'
         if path.endswith('.pdf'):
          with open(path, 'wb+') as destination: 
                      destination.write(file)
@@ -1177,7 +1177,7 @@ def pdf_upload(request):
             split_merge(input,output,pagez)
            
           
-            pdf_file = Document(cover=pic,file=pdf,project_id = project.id, preview=out, submitted=True)
+            pdf_file = Document(cover=pic,file=pat,project_id = project.id, preview=out, submitted=True)
             pdf_file.save()
         
             Progress.objects.create(document_id=pdf_file.id)
@@ -1234,7 +1234,7 @@ def pdf_upload(request):
                         split_merge(input,output,pagez)
                         
           
-                        pdf_file = Document(cover=pic,file=pdf,project_id = project.id, preview=out, submitted=True)
+                        pdf_file = Document(cover=pic,file=pat,project_id = project.id, preview=out, submitted=True)
                         pdf_file.save()
                         
                         Progress.objects.create(document_id=pdf_file.id)

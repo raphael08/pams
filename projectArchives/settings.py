@@ -16,7 +16,7 @@ import django_heroku,dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.python
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATABASES_URL = 'postgres://cilxlxbnztezmf:b3aa5630fdf58fb9bd78f0faef457d21d9afbfe9c4b920a054d74f5c9be38e8c@ec2-3-208-74-199.compute-1.amazonaws.com:5432/d6khn9imgr5rn6'
+DATABASES_URL = 'postgres://hozexrnxqcnxts:c90c72720d1f9cfb3c7bbf19fc6f35380dc4ea308017bf96920e595aa8b2d384@ec2-54-84-182-168.compute-1.amazonaws.com:5432/de22sdi8c6sffu'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
