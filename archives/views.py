@@ -1151,7 +1151,7 @@ def pdf_upload(request):
   # iterate through the pages
             
             names = f'{request.user.student.regNo}.jpg'
-            paths = f'{cover}\\{request.user.student.regNo}.jpg' 
+            paths = f'media/coverpage/{str(request.user.student.regNo)}.jpg' 
             
             project.title = title.title()
             project.student_id = request.user.student.id
@@ -1203,7 +1203,8 @@ def pdf_upload(request):
                         name = f'{request.user.student.regNo}.jpg'
                         doc = fitz.open(path) 
                        
-                        paths = f'{cover}\\{request.user.student.regNo}.jpg' 
+                        paths = f'media/coverpage/{str(request.user.student.regNo)}.jpg' 
+                        'media/coverpage/{str(request.user.student.regNo)}.jpg'
                         project.title = title.title()
                         project.student_id = request.user.student.id
                         project.department_id = request.user.student.department.id
