@@ -1074,13 +1074,17 @@ def check_file_similarity(file_path):
 #                     res = JsonResponse({'data':'No such file exists in the existingPath'})
 #                     return res
 #     return render(request, 'html/dist/upload.html')
-   
+import re 
 t = 'SPECIFIC OBJECTIVES'
 k = 'OBJECTIVES'
 u = 'SPECIFIC OBJECTIVE'
 c = 'content'
 y = 'table of content'
 ab = 'ABSTRACT'
+
+pages = [0]
+objectives = [ab,t,k]
+pattern = '|'.join(objectives)
 # pdf2 = PyPDF2.PdfReader(file_path)
 # no = len(pdf2.pages)
 pages = [0]
@@ -1090,17 +1094,16 @@ def split_merge(input,output,pagex):
     pdf_w = PyPDF2.PdfWriter()
     
     for i in range(1,len(pdf2.pages)):
-        text = pdf2.pages[i].extract_text() 
-        if ab.upper() in text or ab.lower() in text or ab.title() in text:
-            pages.append(i)  
-            break
-    for i in range(1,len(pdf2.pages)):
         text = pdf2.pages[i].extract_text()
-
-        if ((t.upper() in text  or t.title() in text or t.lower() in text) or (u.upper() in text  or u.title() in text or u.lower() in text ) or (k.upper() in text  or k.title() in text or k.lower() in text )) and not ((c.upper() in text or c.lower() in text or c.title() in text) or (y.upper() in text or y.lower() in text or y.title() in text)):
+        text.lower()
         
-            pages.append(i)
-            break
+        if ( c.lower() in text.lower()) or (y in text ):
+            pass
+        else:
+         matches = re.findall(pattern, text)
+        if matches:
+            pages.append(i)  
+                       
     for page in pagex:
          page = pdf2.pages[page]
          pdf_w.add_page(page)
@@ -1109,9 +1112,6 @@ def split_merge(input,output,pagex):
     with open(output,'wb') as output_file:
         pdf_w.write(output_file)
         
-        
-
-
   
 def pdf_upload(request):
     
