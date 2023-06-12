@@ -1174,7 +1174,7 @@ def pdf_upload(request):
             split_merge(input,output,pagez)
            
           
-            pdf_file = Document(cover=names,file=pdf,project_id = project.id, preview=out, submitted=True)
+            pdf_file = Document(cover=paths,file=pdf,project_id = project.id, preview=out, submitted=True)
             pdf_file.save()
         
             Progress.objects.create(document_id=pdf_file.id)
@@ -1228,7 +1228,7 @@ def pdf_upload(request):
                         split_merge(input,output,pages)
                         
           
-                        pdf_file = Document(cover=name,file=pdf,project_id = project.id, preview=out, submitted=True)
+                        pdf_file = Document(cover=paths,file=pdf,project_id = project.id, preview=out, submitted=True)
                         pdf_file.save()
                         
                         Progress.objects.create(document_id=pdf_file.id)
