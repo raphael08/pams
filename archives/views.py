@@ -1150,7 +1150,7 @@ def pdf_upload(request):
             doc = fitz.open(path)  # open document
   # iterate through the pages
             
-            names = f'{name}'+'.jpg'
+            names = f'{request.user.student.regNo}.jpg'
             paths = f'{cover}\\{request.user.student.regNo}.jpg' 
             
             project.title = title.title()
@@ -1200,7 +1200,7 @@ def pdf_upload(request):
                      else:
                         #images = convert_from_path(path,poppler_path=poppler_path)
                         name = str(pdf)[-6:-4]
-                        name = f'{name}'+'.jpg'
+                        name = f'{request.user.student.regNo}.jpg'
                         doc = fitz.open(path) 
                        
                         paths = f'{cover}\\{request.user.student.regNo}.jpg' 
