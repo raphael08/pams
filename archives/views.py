@@ -1080,7 +1080,7 @@ c = 'content'
 y = 'table of content'
 ab = 'ABSTRACT'
 
-pages = [0]
+
 objectives = [ab,t,k]
 pattern = '|'.join(objectives)
 # pdf2 = PyPDF2.PdfReader(file_path)
