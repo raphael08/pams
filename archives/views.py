@@ -1151,7 +1151,8 @@ def pdf_upload(request):
   # iterate through the pages
             
             names = f'{request.user.student.regNo}.jpg'
-            paths = f'coverpage/{str(request.user.student.regNo)}.jpg' 
+            paths = f'media/coverpage/{str(request.user.student.regNo)}.jpg' 
+            pic = f'coverpage/{str(request.user.student.regNo)}.jpg'
             
             project.title = title.title()
             project.student_id = request.user.student.id
@@ -1174,7 +1175,7 @@ def pdf_upload(request):
             split_merge(input,output,pagez)
            
           
-            pdf_file = Document(cover=paths,file=pdf,project_id = project.id, preview=out, submitted=True)
+            pdf_file = Document(cover=pic,file=pdf,project_id = project.id, preview=out, submitted=True)
             pdf_file.save()
         
             Progress.objects.create(document_id=pdf_file.id)
@@ -1203,7 +1204,8 @@ def pdf_upload(request):
                         name = f'{request.user.student.regNo}.jpg'
                         doc = fitz.open(path) 
                        
-                        paths = f'coverpage/{str(request.user.student.regNo)}.jpg' 
+                        paths = f'media/coverpage/{str(request.user.student.regNo)}.jpg' 
+                        pic = f'coverpage/{str(request.user.student.regNo)}.jpg'
                         'media/coverpage/{str(request.user.student.regNo)}.jpg'
                         project.title = title.title()
                         project.student_id = request.user.student.id
@@ -1229,7 +1231,7 @@ def pdf_upload(request):
                         split_merge(input,output,pages)
                         
           
-                        pdf_file = Document(cover=paths,file=pdf,project_id = project.id, preview=out, submitted=True)
+                        pdf_file = Document(cover=pic,file=pdf,project_id = project.id, preview=out, submitted=True)
                         pdf_file.save()
                         
                         Progress.objects.create(document_id=pdf_file.id)
