@@ -1076,6 +1076,8 @@ def check_file_similarity(file_path):
 #     return render(request, 'html/dist/upload.html')
    
 t = 'SPECIFIC OBJECTIVES'
+k = 'OBJECTIVES'
+u = 'SPECIFIC OBJECTIVE'
 c = 'content'
 y = 'table of content'
 ab = 'ABSTRACT'
@@ -1095,7 +1097,7 @@ def split_merge(input,output,pagex):
     for i in range(1,len(pdf2.pages)):
         text = pdf2.pages[i].extract_text()
 
-        if (t.upper() in text  or t.title() in text) and not ((c.upper() in text or c.lower() in text or c.title() in text) or (y.upper() in text or y.lower() in text or y.title() in text)):
+        if ((t.upper() in text  or t.title() in text or t.lower() in text) or (u.upper() in text  or u.title() in text or u.lower() in text ) or (k.upper() in text  or k.title() in text or k.lower() in text )) and not ((c.upper() in text or c.lower() in text or c.title() in text) or (y.upper() in text or y.lower() in text or y.title() in text)):
         
             pages.append(i)
             print(pages)
@@ -1226,9 +1228,10 @@ def pdf_upload(request):
                         output = f'media/preview/{str(request.user.student.regNo)}.pdf'
                         out = f'preview/{str(request.user.student.regNo)}.pdf'
                         # print(output)
+                        pagez = pages
                         # pagez = pages
                         #print(pagez)
-                        split_merge(input,output,pages)
+                        split_merge(input,output,pagez)
                         
           
                         pdf_file = Document(cover=pic,file=pdf,project_id = project.id, preview=out, submitted=True)
