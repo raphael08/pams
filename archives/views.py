@@ -1114,7 +1114,7 @@ def split_merge(input,output,pagex):
 def pdf_upload(request):
     
     
-   # try:
+   try:
     zoom_x = 2.0  # horizontal zoom
     zoom_y = 2.0  # vertical zoom
     mat = fitz.Matrix(zoom_x, zoom_y)
@@ -1263,10 +1263,10 @@ def pdf_upload(request):
         
     role = Group.objects.get(name='Student')    
     return render(request, 'html/dist/pdf_upload.html',{'side':'upload_project','p':p,'sub':sub,'j':j})
-   # except:
+   except:
      
-   #  messages.error(request,'Something went wrong')
-   #  return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    messages.error(request,'Something went wrong')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
  
  
 def preview_pdf(request,pk):
