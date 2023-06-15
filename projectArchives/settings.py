@@ -93,34 +93,34 @@ WSGI_APPLICATION = "projectArchives.wsgi.application"
 
 
 ###############LOCAL #####################
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'archives',
-#         'USER': 'postgres',
-#         'PASSWORD': 'raphael',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
-
-##################HEROKU#########################
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd6khn9imgr5rn6',
+        'NAME': 'archives',
         'USER': 'postgres',
-        'PASSWORD': 'RDlJOqOuli0bScgw7v8P',
-        'HOST': 'ec2-3-208-74-199.compute-1.amazonaws.com',
-        'PORT': '6223',
+        'PASSWORD': 'raphael',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
+##################HEROKU#########################
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'd6khn9imgr5rn6',
+#         'USER': 'postgres',
+#         'PASSWORD': 'RDlJOqOuli0bScgw7v8P',
+#         'HOST': 'ec2-3-208-74-199.compute-1.amazonaws.com',
+#         'PORT': '6223',
+#     }
+# }
+
 ########### RAILWAY ##################
 import dj_database_url
-DATABASES = {
-     'default': dj_database_url.parse(DATABASES_URL)
-         }
+# DATABASES = {
+#      'default': dj_database_url.parse(DATABASES_URL)
+#          }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

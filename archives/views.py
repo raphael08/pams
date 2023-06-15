@@ -1079,10 +1079,15 @@ u = 'SPECIFIC OBJECTIVE'
 c = 'content'
 y = 'table of content'
 ab = 'ABSTRACT'
-
-
+t = 'TITLE'
+g = 'DAR ES SALAAM'
+d = 'DARESSALAAMINSTITUTEOFTECHNOLOGY'
 objectives = [ab,t,k]
+
+dsm = [g]
 pattern = '|'.join(objectives)
+# patt = '|'.join(title)
+ds = '|'.join(dsm)
 # pdf2 = PyPDF2.PdfReader(file_path)
 # no = len(pdf2.pages)
 
@@ -1121,18 +1126,22 @@ def pdf_upload(request):
     zoom_y = 2.0  # vertical zoom
     mat = fitz.Matrix(zoom_x, zoom_y)
     if request.method == 'POST' and request.FILES['pdf']:
-        j = Document.objects.filter(project__student_id=request.user.student.id).exists() 
-        role = Group.objects.get(name='Student')  
-        title = request.POST.get('title')
-        type = request.POST.get('type')
-        file = request.FILES.get('pdf').read()
-        f = request.FILES.get('pdf')
-       
-        pdf = request.FILES['pdf']
-        print(pdf)
+      j = Document.objects.filter(project__student_id=request.user.student.id).exists() 
+      role = Group.objects.get(name='Student')  
+      title = request.POST.get('title')
+      type = request.POST.get('type')
+      file = request.FILES.get('pdf').read()
+      f = request.FILES.get('pdf')
+      name = request.user.first_name.split(' ')
+      
+      pdf = request.FILES['pdf']
+      tit = [title]
+      n= [name[0][:-1]]
+ 
+      if len(title) >=3:
         path = f'media/projects/{str(request.user.student.regNo)}.pdf'
         patt = f'projects/{str(request.user.student.regNo)}.pdf'
-        print(path)
+        
         if path.endswith('.pdf'):
          with open(path, 'wb+') as destination: 
                      destination.write(file)
@@ -1140,115 +1149,134 @@ def pdf_upload(request):
          text2 = ''
          # for page in range(number_of_pages):
          text2 += pdf2.pages[0].extract_text()
+         dar = pdf2.pages[0].extract_text()
+         patts = '|'.join(tit)
+         m = '|'.join(n)
+         match = re.findall(ds, dar,re.IGNORECASE)
+         
          # print(text2.strip())
          # if 'DAR ES SALAAM INSTITUTE OF TECHNOLOGY' in text2:
          
+         if match: 
+            matches = re.findall(patts, dar,re.IGNORECASE)
+            matc = re.findall(m, dar)
+            if matc:
+             if matches:
+               project = Project()
+               similarity_scores = check_file_similarity(path)         
+               if len(similarity_scores)==0:
+                  #images = convert_from_path(path,poppler_path=poppler_path)
+                  name = str(pdf)[-6:-4]
+                  pdfs=  str(pdf)[:-4]
+                  doc = fitz.open(path)  # open document
+      # iterate through the pages
+                  
+                  names = f'{request.user.student.regNo}.jpg'
+                  paths = f'media/coverpage/{str(request.user.student.regNo)}.jpg' 
+                  pic = f'coverpage/{str(request.user.student.regNo)}.jpg'
+                  
+                  project.title = title.title()
+                  project.student_id = request.user.student.id
+                  project.department_id = request.user.student.department.id
+                  project.project_type_id = type
+                  project.save()         
+                  p =User.objects.get(id=request.user.id)
+                  for i in Group.objects.all():
+                     p.groups.remove(i.id)
+                  p.groups.add(role)
+                  pix = doc[0].get_pixmap(matrix=mat)  # render page to an image
+                  pix.save(paths)
+                  profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
+                  input = path
+                  output = f'media/preview/{str(request.user.student.regNo)}.pdf'
+                  out = f'preview/{str(request.user.student.regNo)}.pdf'
+                  # print(output)
+                  
+                  #print(pagez)
+                  split_merge(input,output)
+               
+               
+                  pdf_file = Document(cover=pic,file=patt,project_id = project.id, preview=out, submitted=True)
+                  pdf_file.save()
             
-         project = Project()
-         similarity_scores = check_file_similarity(path)         
-         if len(similarity_scores)==0:
-            #images = convert_from_path(path,poppler_path=poppler_path)
-            name = str(pdf)[-6:-4]
-            pdfs=  str(pdf)[:-4]
-            doc = fitz.open(path)  # open document
-  # iterate through the pages
+                  Progress.objects.create(document_id=pdf_file.id)
+                  messages.success(request, 'Your PDF was uploaded successfully!')
+                  #os.remove(path)
+                  return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                  #return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file,'j':j})
+               else:
+                           # if max(similarity_scores,key=lambda x:x[1])[1] == 100:
+                           #       messages.error(request, 'File Exists')
+                           #       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                           
+                           if max(similarity_scores,key=lambda x:x[1])[1] > 80:
+                              print(f'projects/{max(similarity_scores,key=lambda x:x[1])[0]}')
+                              d = Document.objects.get(file=f'projects/{max(similarity_scores,key=lambda x:x[1])[0]}')
+                              
+                              messages.error(request, f'Your file is {max(similarity_scores,key=lambda x:x[1])[1]} %  resemble with project with title {d.project.title.title()} of year {d.project.student.academic_year} {d.project.student.level.name.title()} from {d.project.student.department.name.title()} Department')
+                              # profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
+                              # os.remove(f'{profile}\\{str(pdf)}') 
+                              # res = JsonResponse({'data':max(similarity_scores,key=lambda x:x[1]),'existingPath': fileName})
+                              return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                              
+                           else:
+                              #images = convert_from_path(path,poppler_path=poppler_path)
+                              name = str(pdf)[-6:-4]
+                              name = f'{request.user.student.regNo}.jpg'
+                              doc = fitz.open(path) 
+                           
+                              paths = f'media/coverpage/{str(request.user.student.regNo)}.jpg' 
+                              pic = f'coverpage/{str(request.user.student.regNo)}.jpg'
+                              'media/coverpage/{str(request.user.student.regNo)}.jpg'
+                              project.title = title.title()
+                              project.student_id = request.user.student.id
+                              project.department_id = request.user.student.department.id
+                              project.project_type_id = type
+                              project.save()  
+                              p =User.objects.get(id=request.user.id)
+                              for i in Group.objects.all():
+                                 p.groups.remove(i.id)
+                              p.groups.add(role)  
+                              # Save pages as images in the pdf
+                              #images[0].save(paths) 
+                              pix = doc[0].get_pixmap(matrix=mat)  # render page to an image
+                              pix.save(paths)
+                              profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
+                              #os.remove(f'{profile}\\{str(pdf)}')           
+                              input = path
+                              output = f'media/preview/{str(request.user.student.regNo)}.pdf'
+                              out = f'preview/{str(request.user.student.regNo)}.pdf'
+                              # print(output)
+                              # pagez = pages
+                              # pagez = pages
+                              #print(pagez)
+                              split_merge(input,output)
+                              
+               
+                              pdf_file = Document(cover=pic,file=patt,project_id = project.id, preview=out, submitted=True)
+                              pdf_file.save()
+                              
+                              Progress.objects.create(document_id=pdf_file.id)
+                              
+                              messages.success(request, 'Your PDF was uploaded successfully!')
+                              return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
             
-            names = f'{request.user.student.regNo}.jpg'
-            paths = f'media/coverpage/{str(request.user.student.regNo)}.jpg' 
-            pic = f'coverpage/{str(request.user.student.regNo)}.jpg'
-            
-            project.title = title.title()
-            project.student_id = request.user.student.id
-            project.department_id = request.user.student.department.id
-            project.project_type_id = type
-            project.save()         
-            p =User.objects.get(id=request.user.id)
-            for i in Group.objects.all():
-               p.groups.remove(i.id)
-            p.groups.add(role)
-            pix = doc[0].get_pixmap(matrix=mat)  # render page to an image
-            pix.save(paths)
-            profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
-            input = path
-            output = f'media/preview/{str(request.user.student.regNo)}.pdf'
-            out = f'preview/{str(request.user.student.regNo)}.pdf'
-            # print(output)
-            
-            #print(pagez)
-            split_merge(input,output)
-           
-          
-            pdf_file = Document(cover=pic,file=patt,project_id = project.id, preview=out, submitted=True)
-            pdf_file.save()
-        
-            Progress.objects.create(document_id=pdf_file.id)
-            messages.success(request, 'Your PDF was uploaded successfully!')
-            #os.remove(path)
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-            #return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file,'j':j})
+             else:
+               messages.error(request, 'Title doesnt match with one on pdf') 
+               return HttpResponseRedirect(request.META.get('HTTP_REFERER'))                    #return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file,'j':j})
+
+            else:
+               messages.error(request, 'The document doesnt contain your name! upload your book') 
+               return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
          else:
-                     # if max(similarity_scores,key=lambda x:x[1])[1] == 100:
-                     #       messages.error(request, 'File Exists')
-                     #       return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-                     
-                     if max(similarity_scores,key=lambda x:x[1])[1] > 80:
-                        print(f'projects/{max(similarity_scores,key=lambda x:x[1])[0]}')
-                        d = Document.objects.get(file=f'projects/{max(similarity_scores,key=lambda x:x[1])[0]}')
-                        
-                        messages.error(request, f'Your file is {max(similarity_scores,key=lambda x:x[1])[1]} %  resemble with project with title {d.project.title.title()} of year {d.project.student.academic_year} {d.project.student.level.name.title()} from {d.project.student.department.name.title()} Department')
-                        # profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
-                        # os.remove(f'{profile}\\{str(pdf)}') 
-                        # res = JsonResponse({'data':max(similarity_scores,key=lambda x:x[1]),'existingPath': fileName})
-                        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-                        
-                     else:
-                        #images = convert_from_path(path,poppler_path=poppler_path)
-                        name = str(pdf)[-6:-4]
-                        name = f'{request.user.student.regNo}.jpg'
-                        doc = fitz.open(path) 
-                       
-                        paths = f'media/coverpage/{str(request.user.student.regNo)}.jpg' 
-                        pic = f'coverpage/{str(request.user.student.regNo)}.jpg'
-                        'media/coverpage/{str(request.user.student.regNo)}.jpg'
-                        project.title = title.title()
-                        project.student_id = request.user.student.id
-                        project.department_id = request.user.student.department.id
-                        project.project_type_id = type
-                        project.save()  
-                        p =User.objects.get(id=request.user.id)
-                        for i in Group.objects.all():
-                           p.groups.remove(i.id)
-                        p.groups.add(role)  
-                        # Save pages as images in the pdf
-                        #images[0].save(paths) 
-                        pix = doc[0].get_pixmap(matrix=mat)  # render page to an image
-                        pix.save(paths)
-                        profile = os.path.join(PROJECT_DIR, '..', 'media','projects')
-                        #os.remove(f'{profile}\\{str(pdf)}')           
-                        input = path
-                        output = f'media/preview/{str(request.user.student.regNo)}.pdf'
-                        out = f'preview/{str(request.user.student.regNo)}.pdf'
-                        # print(output)
-                        # pagez = pages
-                        # pagez = pages
-                        #print(pagez)
-                        split_merge(input,output)
-                        
-          
-                        pdf_file = Document(cover=pic,file=patt,project_id = project.id, preview=out, submitted=True)
-                        pdf_file.save()
-                        
-                        Progress.objects.create(document_id=pdf_file.id)
-                        
-                        messages.success(request, 'Your PDF was uploaded successfully!')
-                        return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
-                        #return render(request, 'html/dist/pdf_upload.html', {'pdf_file': pdf_file,'j':j})
-         # else:
-         #    messages.error(request, 'Upload your document with cover page') 
-         #    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
+               messages.error(request, 'Upload your document with cover page') 
+               return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  
         else:
             messages.error(request, 'only Pdf file required') 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+      else:
+         messages.error(request, 'Title name cant be less than 3 words') 
+         return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
           
     if request.user.is_superuser:
            
