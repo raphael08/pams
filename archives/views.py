@@ -1132,12 +1132,12 @@ def pdf_upload(request):
       type = request.POST.get('type')
       file = request.FILES.get('pdf').read()
       f = request.FILES.get('pdf')
-      name = request.user.first_name.split(' ')
-      
+      name = str(request.user.student.regNo)
+      print(name)
       pdf = request.FILES['pdf']
       tit = [title]
-      n= [name[0][:-1]]
- 
+      n= [name]
+      print(n)
       if len(title) >=3:
         path = f'media/projects/{str(request.user.student.regNo)}.pdf'
         patt = f'projects/{str(request.user.student.regNo)}.pdf'
@@ -1160,7 +1160,7 @@ def pdf_upload(request):
          if match: 
             matches = re.findall(patts, dar,re.IGNORECASE)
             matc = re.findall(m, dar)
-            if matc:
+            if name[-6:] in dar:
              if matches:
                project = Project()
                similarity_scores = check_file_similarity(path)         
