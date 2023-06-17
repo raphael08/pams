@@ -17,7 +17,7 @@ import django_heroku,dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATABASES_URL = 'postgres://hozexrnxqcnxts:c90c72720d1f9cfb3c7bbf19fc6f35380dc4ea308017bf96920e595aa8b2d384@ec2-54-84-182-168.compute-1.amazonaws.com:5432/de22sdi8c6sffu'
-
+DATABASES_URLS = 'postgres://pams_user:xUBo8ZEU0X95oT0Eh7BPFrROy3Pxi38K@dpg-ci6unsh8g3n3vm3g5sdg-a.oregon-postgres.render.com/pams'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -93,16 +93,16 @@ WSGI_APPLICATION = "projectArchives.wsgi.application"
 
 
 ###############LOCAL #####################
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'archives',
-        'USER': 'postgres',
-        'PASSWORD': 'raphael',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'archives',
+#         'USER': 'postgres',
+#         'PASSWORD': 'raphael',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 
 ##################HEROKU#########################
 # DATABASES = {
@@ -116,11 +116,11 @@ DATABASES = {
 #     }
 # }
 
-########### RAILWAY ##################
+########### RENDER ##################
 import dj_database_url
-# DATABASES = {
-#      'default': dj_database_url.parse(DATABASES_URL)
-#          }
+DATABASES = {
+     'default': dj_database_url.parse(DATABASES_URLS)
+         }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -193,4 +193,4 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-django_heroku.settings(locals())
+#django_heroku.settings(locals())
