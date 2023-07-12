@@ -114,7 +114,7 @@
                         <span class="nav-label">Academic Level</span></i></a>
                     </li>
                     {% endif %}
-                    {% if perms.archives.view_project_type%}
+                    {% if perms.archives.add_project_type%}
                     <li>
                         <a href="{% url 'project_type' %}" class="{% if side == 'project_type' %} active {% endif %}"><i class="sidebar-item-icon fa fa-sitemap"></i>
                             <span class="nav-label">Project type</span></i></a>
