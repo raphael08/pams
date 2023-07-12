@@ -146,7 +146,7 @@ data = [
         }
     }, 
 {
-        "m odel": "archives.awards",
+        "model": "archives.awards",
         "pk": 5,
         "fields": {
             "name": "Bachelor of Engineering in Oil and Gas Engineering",

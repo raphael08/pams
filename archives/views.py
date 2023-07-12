@@ -61,7 +61,7 @@ def login(request):
    role8 = Group.objects.get(name='Final_Year')
    role = Group.objects.get(name='Student') 
    is_connected = check_connection()
-   print(is_connected)
+   
    if is_connected==True:
     if request.method == 'POST':
      if is_connected==True:
@@ -370,6 +370,8 @@ def addstaff(request):
       password = make_password("@DIT123")
       users = User.objects.filter(username=email).exists()
       user = Staff.objects.filter(staff_id=staff_id).exists()
+      us = Staff.objects.filter(level_id=1).exists()
+      uss = Staff.objects.filter(level_id=2).exists()
       if users and user:
          messages.error(request,'Staff exists')
          return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -1100,12 +1102,15 @@ def split_merge(input,output):
         text = pdf2.pages[i].extract_text()
         text.lower()
         
-        if ( c.lower() in text.lower()) or (y in text ):
+        if ("".join(str(y.lower()).split()) in "".join(str(text.lower()).split())):
             pass
         else:
          matches = re.findall(pattern, text)
         if matches:
-            pages.append(i)  
+            pages.append(i) 
+            
+            if len(pages) == 3:
+                    break  
                        
     for page in pages:
          page = pdf2.pages[page]
@@ -1142,7 +1147,7 @@ def pdf_upload(request):
         path = f'media/projects/{str(request.user.student.regNo)}.pdf'
         patt = f'projects/{str(request.user.student.regNo)}.pdf'
         
-        if path.endswith('.pdf'):
+        if str(f).endswith('.pdf'):
          with open(path, 'wb+') as destination: 
                      destination.write(file)
          pdf2 = PyPDF2.PdfReader(path)
@@ -1161,7 +1166,7 @@ def pdf_upload(request):
             matches = re.findall(patts, dar,re.IGNORECASE)
             matc = re.findall(m, dar)
             if name[-6:] in dar:
-             if matches:
+             if "".join(str(title).upper().split()) in "".join(str(dar).upper().split()):
                project = Project()
                similarity_scores = check_file_similarity(path)         
                if len(similarity_scores)==0:
